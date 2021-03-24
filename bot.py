@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 import os
 
-token = os.getenv("DISCORD_BOT_TOKEN")
+token = "ODI0MDM2OTEyMjk2ODg2Mjgy.YFpiLQ._K25Vln6ACX-FMS9BPtqo6I-UeI"
+#token = os.getenv("DISCORD_BOT_TOKEN")
 
 description = "TODO: Change Me"
 
@@ -17,6 +18,12 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print("------------")
+
+@bot.command()
+async def initialize(ctx):
+    await ctx.guild.create_role(name="sino_guerrilla")
+    await ctx.guild.create_role(name="sino_conquest")
+    await ctx.guild.create_role(name="sino_purificaiton")
 
 @bot.command()
 async def whoami(ctx):
