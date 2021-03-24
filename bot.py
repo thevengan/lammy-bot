@@ -2,8 +2,8 @@ import discord
 from discord.ext import commands
 import os
 
-token = "ODI0MDM2OTEyMjk2ODg2Mjgy.YFpiLQ._K25Vln6ACX-FMS9BPtqo6I-UeI"
-#token = os.getenv("DISCORD_BOT_TOKEN")
+#token = "insert token here"
+token = os.getenv("DISCORD_BOT_TOKEN")
 
 description = "TODO: Change Me"
 
