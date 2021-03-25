@@ -48,6 +48,21 @@ async def soagiverole(ctx):
             await ctx.author.add_roles(role)
 
 @bot.command()
+async def soaremoverole(ctx):
+    if "guerrilla" in ctx.message.content:
+        roles = [role for role in ctx.guild.roles if role.name == "sino_guerrilla"]
+        for role in roles:
+            await ctx.author.remove_roles(role)
+    if "conquest" in ctx.message.content:
+        roles = [role for role in ctx.guild.roles if role.name == "sino_conquest"]
+        for role in roles:
+            await ctx.author.remove_roles(role)
+    if "purification" in ctx.message.content:
+        roles = [role for role in ctx.guild.roles if role.name == "sino_purification"]
+        for role in roles:
+            await ctx.author.remove_roles(role)
+
+@bot.command()
 async def whoami(ctx):
     await ctx.send(f"You are {ctx.message.author.name}")
 
