@@ -3,8 +3,8 @@ from discord.ext import commands
 
 import os
 
-token = "ODI0MDM2OTEyMjk2ODg2Mjgy.YFpiLQ.3TZPNFsZI-QyJ0aLojNxjU43vBA"
-#token = os.getenv("DISCORD_BOT_TOKEN")
+#token = ""
+token = os.getenv("DISCORD_BOT_TOKEN")
 
 description = "TODO: Change Me"
 
