@@ -3,8 +3,8 @@ from discord.ext import commands
 
 import os
 
-#token = ""
-token = os.getenv("DISCORD_BOT_TOKEN")
+token = "ODI0MDM2OTEyMjk2ODg2Mjgy.YFpiLQ.3TZPNFsZI-QyJ0aLojNxjU43vBA"
+#token = os.getenv("DISCORD_BOT_TOKEN")
 
 description = "TODO: Change Me"
 
@@ -46,6 +46,21 @@ async def soagiverole(ctx):
         roles = [role for role in ctx.guild.roles if role.name == "sino_purification"]
         for role in roles:
             await ctx.author.add_roles(role)
+
+@bot.command()
+async def soaremoverole(ctx):
+    if "guerrilla" in ctx.message.content:
+        roles = [role for role in ctx.guild.roles if role.name == "sino_guerrilla"]
+        for role in roles:
+            await ctx.author.remove_roles(role)
+    if "conquest" in ctx.message.content:
+        roles = [role for role in ctx.guild.roles if role.name == "sino_conquest"]
+        for role in roles:
+            await ctx.author.remove_roles(role)
+    if "purification" in ctx.message.content:
+        roles = [role for role in ctx.guild.roles if role.name == "sino_purification"]
+        for role in roles:
+            await ctx.author.remove_roles(role)
 
 @bot.command()
 async def whoami(ctx):
