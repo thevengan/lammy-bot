@@ -5,8 +5,7 @@ import os
 from datetime import time, datetime
 from schedules import GUERRILLA_TIMES, CONQUEST_TIMES, PURIFICATION_TIMES
 
-token = "ODI0MDM2OTEyMjk2ODg2Mjgy.YFpiLQ.EeA6oDjPsIQkAt3u1Uy3KvMeI_g"
-#token = os.getenv("DISCORD_BOT_TOKEN")
+token = os.getenv("DISCORD_BOT_TOKEN")
 
 description = "TODO: Change Me"
 
