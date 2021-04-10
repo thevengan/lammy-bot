@@ -65,7 +65,7 @@ async def soahelp(ctx):
         embed.add_field(name="Prefix", value="!soa", inline=True)        
         embed.add_field(name="initialize", value="Sets up the necessary roles and channels for users to interact with lammy-bot.", inline=False)
         embed.add_field(name="giverole", value="Gives the user a role(s). Accepts the following: guerrilla, conquest, purification.", inline=False)
-        embed.add_field(name="removerole", value="Removes a role(s) from the user. Accepts the following: guerrilla, conqeust, purification.", inline=False)
+        embed.add_field(name="removerole", value="Removes a role(s) from the user. Accepts the following: guerrilla, conquest, purification.", inline=False)
         await ctx.author.send(embed=embed)
 
 @bot.command()
