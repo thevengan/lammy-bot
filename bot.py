@@ -39,7 +39,7 @@ async def ping_role():
     if current_time in PURIFICATION_TIMES:
         for guild in bot.guilds:
             channels = [channel for channel in guild.channels if channel.name in ('bot-spam', 'spam-bot')]
-            role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
+            role = [role for role in guild.roles if role.name == "sino_purification"][0]
 
             for channel in channels:
                 await channel.send(f"{role.mention}: Time to purify! Get that room clean!")   
