@@ -1,10 +1,16 @@
+# discord import
 import discord
 from discord.ext import commands, tasks
 
+# default library imports
 import os
 from datetime import time, datetime
-from schedules import GUERRILLA_TIMES, CONQUEST_TIMES, PURIFICATION_TIMES
 
+# local imports
+from schedules import GUERRILLA_TIMES, CONQUEST_TIMES, PURIFICATION_TIMES
+from crud import recreate_database, populate_database
+
+# set the discord bot token
 token = os.getenv("DISCORD_BOT_TOKEN")
 
 description = "TODO: Change Me"
@@ -12,10 +18,12 @@ description = "TODO: Change Me"
 intents = discord.Intents.default()
 intents.members = True
 
+# instantiate bot
 bot = commands.Bot(command_prefix='!', description=description, intents=intents)
 
 BOT_CHANNELS = ('bot-spam', 'spam-bot')
 
+# ping_role task that acts every minute and pings applicable roles
 @tasks.loop(minutes=1)
 async def ping_role():
     current_time = time(datetime.now().hour, datetime.now().minute)
@@ -44,11 +52,18 @@ async def ping_role():
             for channel in channels:
                 await channel.send(f"{role.mention}: Time to purify! Get that room clean!")   
 
+# standard startup
 @bot.event
 async def on_ready():
     print("Logged in as")
     print(bot.user.name)
     print(bot.user.id)
+    print("------------")
+
+    print("Creating database")
+    recreate_database()
+    populate_database()
+    print("Database created")
     print("------------")
 
     print("Starting tasks")
