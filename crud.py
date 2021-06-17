@@ -1,14 +1,14 @@
 import os
-from numpy import dtype
 import pandas as pd
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from models import Base
 from constants import MASTER_URL, TABLE_LIST
 
 
 db_url = os.getenv("DATABASE_URL")
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
 engine = create_engine(db_url)
 
 def recreate_database():
