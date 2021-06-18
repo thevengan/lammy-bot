@@ -65,13 +65,13 @@ async def update_db():
     date_part = datamine_version.split(" ")[0]
     time_part = datamine_version.split(" ")[1]
 
-    year_part = date_part.split("-")[0]
-    month_part = date_part.split("-")[1]
-    day_part = date_part.split("-")[2]
+    year_part = int(date_part.split("-")[0])
+    month_part = int(date_part.split("-")[1])
+    day_part = int(date_part.split("-")[2])
 
-    hour_part = time_part.split(":")[0]
-    minute_part = time_part.split(":")[1]
-    second_part = time_part.split(":")[2]
+    hour_part = int(time_part.split(":")[0])
+    minute_part = int(time_part.split(":")[1])
+    second_part = int(time_part.split(":")[2])
 
     datamine_updated = datetime(
         year=year_part,
@@ -89,13 +89,13 @@ async def update_db():
     date_part = current_version.split(" ")[0]
     time_part = current_version.split(" ")[1]
 
-    year_part = date_part.split("-")[0]
-    month_part = date_part.split("-")[1]
-    day_part = date_part.split("-")[2]
+    year_part = int(date_part.split("-")[0])
+    month_part = int(date_part.split("-")[1])
+    day_part = int(date_part.split("-")[2])
 
-    hour_part = time_part.split(":")[0]
-    minute_part = time_part.split(":")[1]
-    second_part = time_part.split(":")[2]
+    hour_part = int(time_part.split(":")[0])
+    minute_part = int(time_part.split(":")[1])
+    second_part = int(time_part.split(":")[2])
 
     last_updated = datetime(
         year=year_part,
