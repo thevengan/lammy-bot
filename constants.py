@@ -1,4 +1,13 @@
+# collection of constants used by the bot and supporting scripts
+
+BOT_CHANNELS = ('bot-spam', 'spam-bot')
+
 MASTER_URL = "https://raw.githubusercontent.com/sinoalice-datamine/data/master/EN/{}.json"
+
+IMAGE_URL = "https://sinoalice.game-db.tw/images/cardL/CardL{}.png"
+
+VERSION_URL = "https://raw.githubusercontent.com/sinoalice-datamine/data/master/EN/version.json"
+
 TABLE_LIST = [
     {
         "name": "card",
