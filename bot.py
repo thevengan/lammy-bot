@@ -10,14 +10,14 @@ import json
 from datetime import time, datetime
 
 # non default imports
-from sqlalchemy import and_
-from sqlalchemy.log import instance_logger
+from sqlalchemy import and_, or_
 
 # local imports
 from schedules import GUERRILLA_TIMES, CONQUEST_TIMES, PURIFICATION_TIMES
 from models import Card, CardEvolution, Item, Skill, LimitBreakSkill, Character, CharacterAbility
 from crud import recreate_database, populate_database, session_scope
-from constants import BOT_CHANNELS, IMAGE_URL, VERSION_URL
+from constants import BOT_CHANNELS, IMAGE_URL, VERSION_URL, WEAPON_ICON_URL, \
+    BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES
 
 # set the discord bot token
 token = os.getenv("DISCORD_BOT_TOKEN")
@@ -107,8 +107,11 @@ async def update_db():
     )
 
     if datamine_updated > last_updated:
+        print("recreating db")
         recreate_database()
         populate_database()
+
+    # TODO: write to version.json so we don't always update the DB with a deploy
 
 # standard startup
 @bot.event
@@ -126,7 +129,7 @@ async def on_ready():
 
     await bot.change_presence(activity=discord.Game(name="!soahelp"))
 
-# help command - sends a DM to the caller
+# help command - sends a help DM to the caller
 @bot.command()
 async def soahelp(ctx):
     if ctx.channel.name in BOT_CHANNELS:
@@ -236,8 +239,11 @@ async def soaweapon(ctx):
     if ctx.channel.name in BOT_CHANNELS:
         weapon_name = ctx.message.content[11:]
 
+        if "" == weapon_name.strip():
+            return
+
         with session_scope() as s:
-            weapon = s.query(Card).filter(and_(Card.name.ilike(f'%{weapon_name}%'), Card.evolutionLevel==0)).first()
+            weapon = s.query(Card).filter(and_(Card.name.ilike(f'%{weapon_name}%'), Card.evolutionLevel==0, Card.cardType==1)).first()
 
             if weapon is None:
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a weapon matching {weapon_name}. Please try again.")
@@ -249,18 +255,18 @@ async def soaweapon(ctx):
 
             color = 0x000000
             if weapon.attribute == 1:
-                color = 0xFF0000
-            elif weapon.attribute == 2:
-                color = 0x0000FF
-            elif weapon.attribute == 3:
-                color = 0x00FF00
+                color = 0xDA230E
+            if weapon.attribute == 2:
+                color = 0x080B72
+            if weapon.attribute == 3:
+                color = 0x1F7310
 
             rarity = "A"
             if weapon.rarity == 4:
                 rarity = "S"
-            elif weapon.rarity == 5:
+            if weapon.rarity == 5:
                 rarity = "SR"
-            elif weapon.rarity == 6:
+            if weapon.rarity == 6:
                 rarity = "L"
 
             infinity_weapon = "NO"
@@ -291,6 +297,68 @@ async def soaweapon(ctx):
             embed.add_field(name="Colosseum Support Skill", value=colo_supp_skill.name, inline=True)
 
             embed.set_footer(text=f"Infinity Weapon: {infinity_weapon} | Skill Customizable: {skill_customize} | Stat Customizable: {stat_customize}")
+
+            await ctx.channel.send(embed=embed)
+
+@bot.command()
+async def soaskill(ctx):
+    if ctx.channel.name in BOT_CHANNELS:
+        skill_name = ctx.message.content[10:]
+
+        if "" == skill_name.strip():
+            return
+
+        with session_scope() as s:
+            skill = s.query(Skill).filter(and_(Skill.name.ilike(f"%{skill_name}%"), Skill.category != 4)).first()
+
+            if skill is None:
+                await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a skill matching {skill_name}. Please try again.")
+                return
+
+            description = skill.description.replace("\\n", " ")
+            description = description + "\n\nWeapons with skill: "
+            weapons_with_skill = list(set([
+                weapon.name for weapon in s.query(Card).filter(or_(
+                Card.questSkillMstId==skill.skillMstId, 
+                Card.frontSkillMstId==skill.skillMstId, 
+                Card.autoSkillMstId==skill.skillMstId)).limit(20).all()
+                ]))
+            for weapon in weapons_with_skill:
+                description = description + weapon + ", "
+            description = description[:-2] + "."
+
+            color = 0x000000
+            if skill.primaryIcon == 1:
+                color = 0x8B0000
+            if skill.primaryIcon == 2:
+                color = 0x00008B
+            if skill.primaryIcon == 3:
+                color = 0xFFFFFF
+            if skill.primaryIcon in BUFF_SKILL_PRIMARY_ICON_VALUES:
+                color = 0x6A0DAD
+            if skill.primaryIcon in DEBUFF_SKILL_PRIMARY_ICON_VALUES:
+                color = 0x006D5B
+
+            weapon_icon = ""
+            if skill.primaryIcon == 1 and skill.rangeIcon == 1:
+                weapon_icon = "1aBXxZdj0QvOEhrfdD5A0Vn7wUGPwpkGa"
+            if skill.primaryIcon == 1 and skill.rangeIcon > 1:
+                weapon_icon = "1amsazOzjdKAjELxTVbD92imxgtMgpxYv"
+            if skill.primaryIcon == 2 and skill.rangeIcon == 1:
+                weapon_icon = "15o-B24K2YeGXmPIUE6cTBXc7xkSfVDpm"
+            if skill.primaryIcon == 2 and skill.rangeIcon > 1:
+                weapon_icon = "1X3fdAZUMtKsXxjNbv1J5C_05Sj42QbN4"
+            if skill.primaryIcon in BUFF_SKILL_PRIMARY_ICON_VALUES:
+                weapon_icon = "1N_BYaXFrBjKzPEIFex2ywsWDPbnxcahz"
+            if skill.primaryIcon in DEBUFF_SKILL_PRIMARY_ICON_VALUES:
+                weapon_icon = "11rm0tpaxFYoInn6m0KguU8ND9zmlLZUF"
+            if skill.primaryIcon == 3:
+                weapon_icon = "1ALhoczKu4VyQTzeEscTGVCOG0E0V3Mp9"
+
+            embed = Embed(title=skill.name, description=description, type="rich", colour=color)
+            embed.set_thumbnail(url=WEAPON_ICON_URL.format(weapon_icon))
+            embed.add_field(name="SP", value=str(skill.sp), inline=True)
+            embed.add_field(name="Targets", value=f"{skill.typeLabel if skill.typeLabel != 'own' else 'Self'}", inline=True)
 
             await ctx.channel.send(embed=embed)
 

@@ -1,12 +1,12 @@
 import os
 import pandas as pd
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import sessionmaker
 
 from contextlib import contextmanager
 
-from models import Base
+from models import Base, Card, Skill
 from constants import MASTER_URL, TABLE_LIST
 
 
@@ -39,7 +39,8 @@ def populate_database():
         'resourceName', 
         'description', 
         'characterUniqueName', 
-        'characterVoice'
+        'characterVoice',
+        'typeLabel'
         ]
 
     dict_dtypes = {x : 'str' for x in list_of_string_columns}
@@ -54,3 +55,15 @@ def populate_database():
 
         with engine.begin() as connection:
             data.to_sql(table["name"], con=connection, if_exists='replace', method='multi')
+
+    with session_scope() as s:
+        skill_ids = [skill.skillMstId for skill in s.query(Skill).all()]
+
+        for id in skill_ids:
+            weapon = s.query(Card).filter(or_(
+                Card.questSkillMstId==id,
+                Card.frontSkillMstId==id,
+                Card.autoSkillMstId==id)).first()
+
+            if weapon is None:
+                s.query(Skill).filter(Skill.skillMstId==id).delete()
