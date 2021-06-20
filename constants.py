@@ -8,12 +8,6 @@ IMAGE_URL = "https://sinoalice.game-db.tw/images/cardL/CardL{}.png"
 
 VERSION_URL = "https://raw.githubusercontent.com/sinoalice-datamine/data/master/EN/version.json"
 
-WEAPON_ICON_URL = "https://drive.google.com/uc?export=view&id={}"
-
-BUFF_SKILL_PRIMARY_ICON_VALUES = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-
-DEBUFF_SKILL_PRIMARY_ICON_VALUES = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-
 TABLE_LIST = [
     {
         "name": "card",
@@ -25,7 +19,6 @@ TABLE_LIST = [
             "autoSkillMstId",
             "name",
             "resourceName",
-            "cardType",
             "weaponType",
             "rarity",
             "attribute",
@@ -74,13 +67,10 @@ TABLE_LIST = [
         "download_location" : "skill_mst_list",
         "fields" : [
             "skillMstId",
-            "category",
             "name",
             "description",
             "sp",
-            "typeLabel",
-            "primaryIcon",
-            "rangeIcon"
+            "typeLabel"
         ]
     },
     {

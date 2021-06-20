@@ -12,7 +12,6 @@ class Card(Base):
     autoSkillMstId = Column(Integer)
     name = Column(String)
     resourceName = Column(String)
-    cardType = Column(Integer)
     weaponType = Column(Integer)
     rarity = Column(Integer)
     attribute = Column(Integer)
@@ -52,13 +51,10 @@ class Item(Base):
 class Skill(Base):
     __tablename__ = 'skill'
     skillMstId = Column(Integer, primary_key=True)
-    category = Column(Integer)
     name = Column(String)
     description = Column(String)
     sp = Column(Integer)
-    typeLabel = Column(String)
-    primaryIcon = Column(Integer)
-    rangeIcon = Column(Integer)
+    typeLabel = Column(Integer)
 
 class LimitBreakSkill(Base):
     __tablename__ = 'limitBreakSkill'
