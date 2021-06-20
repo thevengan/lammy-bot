@@ -20,8 +20,7 @@ from constants import BOT_CHANNELS, IMAGE_URL, VERSION_URL, WEAPON_ICON_URL, \
     BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES
 
 # set the discord bot token
-#token = os.getenv("DISCORD_BOT_TOKEN")
-token = "ODI0MDM2OTEyMjk2ODg2Mjgy.YFpiLQ.vRJQyYotVt1Fz61RM-D-JHu1lyU"
+token = os.getenv("DISCORD_BOT_TOKEN")
 
 description = "TODO: Change Me"
 
