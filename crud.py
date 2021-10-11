@@ -9,7 +9,6 @@ from contextlib import contextmanager
 from models import Base, Card, Skill
 from constants import MASTER_URL, TABLE_LIST
 
-
 db_url = os.getenv("DATABASE_URL")
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
@@ -40,7 +39,7 @@ def populate_database():
         'description', 
         'characterUniqueName', 
         'characterVoice',
-        'typeLabel'
+        'typeLabel',
         ]
 
     dict_dtypes = {x : 'str' for x in list_of_string_columns}

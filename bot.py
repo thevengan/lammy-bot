@@ -111,7 +111,10 @@ async def update_db():
         recreate_database()
         populate_database()
 
-    # TODO: write to version.json so we don't always update the DB with a deploy
+    new_date = {'lastUpdatedTime': datamine_version}
+    with open("version.json", "w") as f:
+        json.dump(new_date, f)
+
 
 # standard startup
 @bot.event
@@ -237,7 +240,7 @@ async def soaremoverole(ctx):
 @bot.command()
 async def soaweapon(ctx):
     if ctx.channel.name in BOT_CHANNELS:
-        weapon_name = ctx.message.content[11:]
+        weapon_name = ctx.message.content[11:].strip()
 
         if "" == weapon_name.strip():
             return
@@ -303,7 +306,7 @@ async def soaweapon(ctx):
 @bot.command()
 async def soaskill(ctx):
     if ctx.channel.name in BOT_CHANNELS:
-        skill_name = ctx.message.content[10:]
+        skill_name = ctx.message.content[10:].strip()
 
         if "" == skill_name.strip():
             return
@@ -359,6 +362,44 @@ async def soaskill(ctx):
             embed.set_thumbnail(url=WEAPON_ICON_URL.format(weapon_icon))
             embed.add_field(name="SP", value=str(skill.sp), inline=True)
             embed.add_field(name="Targets", value=f"{skill.typeLabel if skill.typeLabel != 'own' else 'Self'}", inline=True)
+
+            await ctx.channel.send(embed=embed)
+
+
+@bot.command()
+async def soanightmare(ctx):
+    if ctx.channel.name in BOT_CHANNELS:
+        nightmare_name = ctx.message.content[14:].strip()
+
+        if "" == nightmare_name.strip():
+            return
+
+        with session_scope() as s:
+            nightmare = s.query(Card).filter(and_(Card.name.ilike(f"%{nightmare_name}%"), Card.cardType==3)).first()
+
+            if nightmare is None:
+                await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a nightmare matching {nightmare_name}. Please try again.")
+                return
+
+            rarity = "A"
+            if nightmare.rarity == 4:
+                rarity = "S"
+            if nightmare.rarity == 5:
+                rarity = "SR"
+            if nightmare.rarity == 6:
+                rarity = "L"
+
+            embed = Embed(title=nightmare.name, type="rich", colour=0xFFFFFF)
+            embed.set_thumbnail(url=IMAGE_URL.format(nightmare.resourceName))
+            embed.add_field(name="Rarity", value=rarity, inline=True)
+            embed.add_field(name="Max Level", value=str(nightmare.maxLevel), inline=True)
+            embed.add_field(name="\u200b", value="\u200b", inline=True)
+            embed.add_field(name="PAtk", value=str(nightmare.maxAttack), inline=True)
+            embed.add_field(name="PDef", value=str(nightmare.maxDefence), inline=True)
+            embed.add_field(name="\u200b", value="\u200b", inline=True)
+            embed.add_field(name="MAtk", value=str(nightmare.maxMagicAttack), inline=True)
+            embed.add_field(name="MDef", value=str(nightmare.maxMagicDefence), inline=True)
+            embed.add_field(name="\u200b", value="\u200b", inline=True)
 
             await ctx.channel.send(embed=embed)
 

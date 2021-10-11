@@ -10,6 +10,7 @@ class Card(Base):
     questSkillMstId = Column(Integer)
     frontSkillMstId = Column(Integer)
     autoSkillMstId = Column(Integer)
+    limitBreakSkillMstId = Column(Integer)
     name = Column(String)
     resourceName = Column(String)
     cardType = Column(Integer)
