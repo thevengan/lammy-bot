@@ -2,7 +2,7 @@
 SINoALICE All-in-One Discord Bot Built on Discord.py  
 Developed by @michael-arroyo ([Vengan#7777](https://discordapp.com/users/235406385469194241)) and @soaglobalguides ([danbodrop#0816](https://discordapp.com/users/138425084040839168))
 
-![](https://michael-arroyo.github.com/lammy-bot/images/lammy.png)
+![](/images/lammy.png)
 
 ## Features
 - Easy setup in any server
