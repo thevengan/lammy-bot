@@ -23,6 +23,7 @@ TABLE_LIST = [
             "questSkillMstId",
             "frontSkillMstId",
             "autoSkillMstId",
+            "limitBreakSkillMstId",
             "name",
             "resourceName",
             "cardType",
@@ -38,7 +39,7 @@ TABLE_LIST = [
             "deckCost",
             "isInfiniteEvolution",
             "isParameterCustomEnabled",
-            "isSkillCustomEnabled"
+            "isSkillCustomEnabled",
         ]
     },
     {
@@ -58,7 +59,7 @@ TABLE_LIST = [
             "itemMstId4",
             "itemMstNum4",
             "itemMstId5",
-            "itemMstNum5"
+            "itemMstNum5",
         ]
     },
     {
@@ -66,7 +67,7 @@ TABLE_LIST = [
         "download_location" : "item_mst_list",
         "fields" : [
             "itemMstId",
-            "name"
+            "name",
         ]
     },
     {
@@ -80,7 +81,7 @@ TABLE_LIST = [
             "sp",
             "typeLabel",
             "primaryIcon",
-            "rangeIcon"
+            "rangeIcon",
         ]
     },
     {
@@ -89,7 +90,7 @@ TABLE_LIST = [
         "fields" : [
             "limitBreakSkillMstId",
             "name",
-            "description"
+            "description",
         ]
     },
     {
@@ -102,7 +103,7 @@ TABLE_LIST = [
             "rolePosition",
             "description",
             "favoriteWeapon",
-            "characterVoice"
+            "characterVoice",
         ]
     },
     {
@@ -112,7 +113,7 @@ TABLE_LIST = [
             "characterAbilityMstId",
             "characterMstId",
             "name",
-            "releaseLevel"
+            "releaseLevel",
         ]
     }
 ]
