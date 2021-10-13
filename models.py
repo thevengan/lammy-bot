@@ -1,5 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, Date, BigInteger
+from sqlalchemy.sql.sqltypes import DateTime
 
 
 Base = declarative_base()
@@ -84,3 +85,12 @@ class CharacterAbility(Base):
     characterMstId = Column(Integer)
     name = Column(String)
     releaseLevel = Column(Integer)
+
+class DiscordMessage(Base):
+    __tablename__ = 'discordMessages'
+    message_id = Column(BigInteger, primary_key=True)
+    last_updated = Column(DateTime)
+    card_type = Column(String)
+    prev = Column(Integer)
+    curr = Column(Integer)
+    next = Column(Integer)
