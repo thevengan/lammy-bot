@@ -4,6 +4,7 @@ from discord import Embed
 from discord.ext import commands, tasks
 
 # default library imports
+import os
 import requests
 import json
 from datetime import time, datetime
