@@ -1,6 +1,6 @@
 # lammy-bot
 SINoALICE All-in-One Discord Bot Built on Discord.py  
-Developed and maintained by @michael-arroyo ([Vengan#7777](https://discordapp.com/users/235406385469194241))
+Developed and maintained by [@michael-arroyo](https://github.com/michael-arroyo) ([Vengan#7777](https://discordapp.com/users/235406385469194241))
 
 ![](/images/lammy.png)
 
@@ -29,15 +29,15 @@ Developed and maintained by @michael-arroyo ([Vengan#7777](https://discordapp.co
 - `removerole [role]` : removes the requested role(s) from the message author. Multiple roles can be given by separating them with a `space`. Possible roles are `conquest, guerrilla, purification`.
     - example - `!soaremoverole purification` would remove the `sino_purification` role from the message author.
 - `weapon [weapon]`: searches the weapon database for the text entered after the command and returns an embed with information on the most relevant weapon.
-    - example - `!soaweapon entrail` would pull up an embed with information for `Entrails of Justice`
+    - example - `!soaweapon entrail` would pull up an embed with information for `Entrails of Justice`.
 - `skill [skill]` : searches the skill database for the text entered after the command and returns an embed with information on the most relevant skill.
-    - example - 
+    - example - `!soaskill hero's harmony` would pull up an embed with information for `Hero's Harmony (I)`.
 - `nightmare [nightmare]` : searches the nightmare database for the text entered after the command and returns an embed with information on the most relevant nightmare.
-    - example `!soanightmare uga` would pull up an embed with information for Ugallu.
+    - example `!soanightmare uga` would pull up an embed with information for `Ugallu`.
 - **(coming soon)** `conquest [conquest boss]` : searches the conquest database for the text entered after the command and returns an embed with strategy and information about the most relevant conquest boss.
     - example - `!soaconquest prom` would pull up the stategy embed for `Prometheus`
 
 ## Collaborators
-- @soaglobalguides ([danbodrop#0816](https://discordapp.com/users/138425084040839168))
+- [@soaglobalguides](https://soaglobalguides.github.io/) ([danbodrop#0816](https://discordapp.com/users/138425084040839168))
     - Conquest boss guides
     
