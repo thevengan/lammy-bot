@@ -4,20 +4,21 @@ from discord import Embed
 from discord.ext import commands, tasks
 
 # default library imports
-import os
 import requests
 import json
 from datetime import time, datetime
+from time import sleep
 
 # non default imports
 from sqlalchemy import and_, or_
 
 # local imports
 from schedules import GUERRILLA_TIMES, CONQUEST_TIMES, PURIFICATION_TIMES
-from models import Card, CardEvolution, Item, Skill, LimitBreakSkill, Character, CharacterAbility
+from models import Card, CardEvolution, Skill, DiscordMessage
 from crud import recreate_database, populate_database, session_scope
-from constants import BOT_CHANNELS, IMAGE_URL, VERSION_URL, WEAPON_ICON_URL, \
+from constants import BOT_CHANNELS, VERSION_URL, WEAPON_ICON_URL, \
     BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES
+from embed_helper import WeaponHelper, NightmareHelper
 
 # set the discord bot token
 token = os.getenv("DISCORD_BOT_TOKEN")
@@ -236,7 +237,7 @@ async def soaremoverole(ctx):
         else:
             await ctx.channel.send(f"{ctx.author.mention}: You're not a part of that role(s).")
 
-# weapon command - queries the db and display information about the requested weapon
+# weapon command - queries the db and displays information about the requested weapon
 @bot.command()
 async def soaweapon(ctx):
     if ctx.channel.name in BOT_CHANNELS:
@@ -251,58 +252,27 @@ async def soaweapon(ctx):
             if weapon is None:
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a weapon matching {weapon_name}. Please try again.")
                 return
-
-            story_skill = s.query(Skill).filter(Skill.skillMstId==weapon.questSkillMstId).first()
-            colo_skill = s.query(Skill).filter(Skill.skillMstId==weapon.frontSkillMstId).first()
-            colo_supp_skill = s.query(Skill).filter(Skill.skillMstId==weapon.autoSkillMstId).first()
-
-            color = 0x000000
-            if weapon.attribute == 1:
-                color = 0xDA230E
-            if weapon.attribute == 2:
-                color = 0x080B72
-            if weapon.attribute == 3:
-                color = 0x1F7310
-
-            rarity = "A"
-            if weapon.rarity == 4:
-                rarity = "S"
-            if weapon.rarity == 5:
-                rarity = "SR"
-            if weapon.rarity == 6:
-                rarity = "L"
-
-            infinity_weapon = "NO"
-            if weapon.isInfiniteEvolution:
-                infinity_weapon = "YES"
-
-            skill_customize = "NO"
-            if weapon.isSkillCustomEnabled:
-                skill_customize = "YES"
-
-            stat_customize = "NO"
-            if weapon.isParameterCustomEnabled:
-                stat_customize = "YES"
             
-            embed = Embed(title=weapon.name, type="rich", colour=color)
-            embed.set_thumbnail(url=IMAGE_URL.format(weapon.resourceName))
-            embed.add_field(name="Rarity", value=rarity, inline=True)
-            embed.add_field(name="Cost", value=str(weapon.deckCost), inline=True)
-            embed.add_field(name="Max Level", value=str(weapon.maxLevel), inline=True)
-            embed.add_field(name="PAtk", value=str(weapon.maxAttack), inline=True)
-            embed.add_field(name="PDef", value=str(weapon.maxDefence), inline=True)
-            embed.add_field(name="\u200b", value="\u200b", inline=True)
-            embed.add_field(name="MAtk", value=str(weapon.maxMagicAttack), inline=True)
-            embed.add_field(name="MDef", value=str(weapon.maxMagicDefence), inline=True)
-            embed.add_field(name="\u200b", value="\u200b", inline=True)
-            embed.add_field(name="Story Skill", value=story_skill.name, inline=False)
-            embed.add_field(name="Colosseum Skill", value=colo_skill.name, inline=True)
-            embed.add_field(name="Colosseum Support Skill", value=colo_supp_skill.name, inline=True)
+            helper = WeaponHelper(weapon)
+            embed = helper.create_embed()
 
-            embed.set_footer(text=f"Infinity Weapon: {infinity_weapon} | Skill Customizable: {skill_customize} | Stat Customizable: {stat_customize}")
+            evolution = s.query(CardEvolution).filter(CardEvolution.cardMstId==weapon.cardMstId).first()
 
-            await ctx.channel.send(embed=embed)
+            response = await ctx.channel.send(embed=embed)
+            message_meta_data = DiscordMessage(
+                message_id=response.id,
+                last_updated=datetime.now(),
+                card_type="weapon",
+                prev=None,
+                curr=weapon.cardMstId,
+                next=evolution.evolvedCardMstId if evolution else None
+            )
+            s.add(message_meta_data)
 
+            evolve_emoji = ctx.bot.get_emoji(897679174712578109)
+            await response.add_reaction(evolve_emoji)
+
+# skill command - queries the db and displays information about the requested skill
 @bot.command()
 async def soaskill(ctx):
     if ctx.channel.name in BOT_CHANNELS:
@@ -366,6 +336,7 @@ async def soaskill(ctx):
             await ctx.channel.send(embed=embed)
 
 
+# nightmare command - queries the db and displays information about the requested nightmare
 @bot.command()
 async def soanightmare(ctx):
     if ctx.channel.name in BOT_CHANNELS:
@@ -381,27 +352,82 @@ async def soanightmare(ctx):
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a nightmare matching {nightmare_name}. Please try again.")
                 return
 
-            rarity = "A"
-            if nightmare.rarity == 4:
-                rarity = "S"
-            if nightmare.rarity == 5:
-                rarity = "SR"
-            if nightmare.rarity == 6:
-                rarity = "L"
+            helper = NightmareHelper(nightmare)
+            embed = helper.create_embed()
 
-            embed = Embed(title=nightmare.name, type="rich", colour=0xFFFFFF)
-            embed.set_thumbnail(url=IMAGE_URL.format(nightmare.resourceName))
-            embed.add_field(name="Rarity", value=rarity, inline=True)
-            embed.add_field(name="Max Level", value=str(nightmare.maxLevel), inline=True)
-            embed.add_field(name="\u200b", value="\u200b", inline=True)
-            embed.add_field(name="PAtk", value=str(nightmare.maxAttack), inline=True)
-            embed.add_field(name="PDef", value=str(nightmare.maxDefence), inline=True)
-            embed.add_field(name="\u200b", value="\u200b", inline=True)
-            embed.add_field(name="MAtk", value=str(nightmare.maxMagicAttack), inline=True)
-            embed.add_field(name="MDef", value=str(nightmare.maxMagicDefence), inline=True)
-            embed.add_field(name="\u200b", value="\u200b", inline=True)
+            evolution = s.query(CardEvolution).filter(CardEvolution.cardMstId==nightmare.cardMstId).first()
 
-            await ctx.channel.send(embed=embed)
+            response = await ctx.channel.send(embed=embed)
+            message_meta_data = DiscordMessage(
+                message_id=response.id,
+                last_updated=datetime.now(),
+                card_type="nightmare",
+                prev=None,
+                curr=nightmare.cardMstId,
+                next=evolution.evolvedCardMstId if evolution else None
+            )
+            s.add(message_meta_data)
+
+            evolve_emoji = ctx.bot.get_emoji(897679174712578109)
+            await response.add_reaction(evolve_emoji)
+
+
+@bot.event
+async def on_reaction_add(reaction, user):
+    if user == bot.user:
+        return
+    if reaction.message.channel.name in BOT_CHANNELS:
+        with session_scope() as s:
+            evolve_emoji = bot.get_emoji(897679174712578109)
+            devolve_emoji = bot.get_emoji(897679128671715369)
+            message_id = reaction.message.id
+
+            message_meta_data = s.query(DiscordMessage).filter(DiscordMessage.message_id==message_id).first()
+
+            # evolve
+            if reaction.emoji.id == evolve_emoji.id:
+                next = message_meta_data.next
+                if message_meta_data.card_type == "weapon":
+                    await reaction.message.clear_reactions()
+                    weapon = s.query(Card).filter(Card.cardMstId==next).first()
+                    helper = WeaponHelper(weapon)
+                    embed = helper.create_embed()
+
+                    await reaction.message.edit(embed=embed)
+
+                    evolution = s.query(CardEvolution).filter(CardEvolution.cardMstId==next).first()
+                    
+                    message_meta_data.last_updated = datetime.now()
+                    message_meta_data.prev = message_meta_data.curr
+                    message_meta_data.curr = message_meta_data.next
+                    message_meta_data.next = evolution.evolvedCardMstId if evolution else None
+                    
+                    await reaction.message.add_reaction(devolve_emoji)
+                    if evolution:
+                        await reaction.message.add_reaction(evolve_emoji)
+
+            # devolve
+            if reaction.emoji.id == devolve_emoji.id:
+                prev = message_meta_data.prev
+                if message_meta_data.card_type == "weapon":
+                    await reaction.message.clear_reactions()
+                    weapon = s.query(Card).filter(Card.cardMstId==prev).first()
+                    helper = WeaponHelper(weapon)
+                    embed = helper.create_embed()
+
+                    await reaction.message.edit(embed=embed)
+
+                    devolution = s.query(CardEvolution).filter(CardEvolution.evolvedCardMstId==prev).first()
+
+                    message_meta_data.last_updated = datetime.now()
+                    message_meta_data.next = message_meta_data.curr
+                    message_meta_data.curr = message_meta_data.prev
+                    message_meta_data.prev = devolution.cardMstId if devolution else None
+
+                    if devolution:
+                        await reaction.message.add_reaction(devolve_emoji)
+                    sleep(0.5)
+                    await reaction.message.add_reaction(evolve_emoji)
 
 
 if __name__ == "__main__":
