@@ -41,29 +41,35 @@ async def ping_role():
     if current_time in GUERRILLA_TIMES:
         for guild in bot.guilds:
             channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
-            role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
+            try:
+                role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
 
-            if role:
                 for channel in channels:
                     await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
+            except IndexError:
+                continue
     
     if current_time in CONQUEST_TIMES:
         for guild in bot.guilds:
             channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
-            role = [role for role in guild.roles if role.name == "sino_conquest"][0]
+            try:
+                role = [role for role in guild.roles if role.name == "sino_conquest"][0]
 
-            if role:
                 for channel in channels:
                     await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
+            except IndexError:
+                continue
 
     if current_time in PURIFICATION_TIMES:
         for guild in bot.guilds:
             channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
-            role = [role for role in guild.roles if role.name == "sino_purification"][0]
+            try:
+                role = [role for role in guild.roles if role.name == "sino_purification"][0]
 
-            if role:
                 for channel in channels:
                     await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
+            except IndexError:
+                continue
 
 @tasks.loop(hours=1)
 async def update_db():
