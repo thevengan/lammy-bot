@@ -43,24 +43,27 @@ async def ping_role():
             channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
             role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
 
-            for channel in channels:
-                await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
+            if role:
+                for channel in channels:
+                    await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
     
     if current_time in CONQUEST_TIMES:
         for guild in bot.guilds:
             channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
             role = [role for role in guild.roles if role.name == "sino_conquest"][0]
 
-            for channel in channels:
-                await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
+            if role:
+                for channel in channels:
+                    await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
 
     if current_time in PURIFICATION_TIMES:
         for guild in bot.guilds:
             channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
             role = [role for role in guild.roles if role.name == "sino_purification"][0]
 
-            for channel in channels:
-                await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
+            if role:
+                for channel in channels:
+                    await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
 
 @tasks.loop(hours=1)
 async def update_db():
@@ -138,7 +141,8 @@ async def on_ready():
 # help command - sends a help DM to the caller
 @bot.command()
 async def soahelp(ctx):
-    message = """**Available Commands**
+    if ctx.channel.name in BOT_CHANNELS:
+        message = """**Available Commands**
 **Prefix** - use `!soa[command]` to access bot commands - eg. `!soahelp`
 - `help` : sends a DM to the message author detailing the commands available.
 
@@ -161,7 +165,7 @@ async def soahelp(ctx):
       - example `!soanightmare uga` would pull up an embed with information for `Ugallu`.
       
 **lammy-bot will ONLY work in the following channels - `bot-spam`, `spam-bot`, `bot-commands`, `bot-only`, `bots-only`"""
-    await ctx.author.send(content=message)
+        await ctx.author.send(content=message)
 
 # initialize command - sets up necessary channels and roles
 @bot.command()
