@@ -1,6 +1,7 @@
 # discord import
 import discord
 from discord import Embed
+from discord import channel
 from discord.ext import commands, tasks
 
 # default library imports
@@ -39,7 +40,7 @@ async def ping_role():
 
     if current_time in GUERRILLA_TIMES:
         for guild in bot.guilds:
-            channels = [channel for channel in guild.channels if channel.name in ('bot-spam', 'spam-bot')]
+            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
             role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
 
             for channel in channels:
@@ -47,7 +48,7 @@ async def ping_role():
     
     if current_time in CONQUEST_TIMES:
         for guild in bot.guilds:
-            channels = [channel for channel in guild.channels if channel.name in ('bot-spam', 'spam-bot')]
+            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
             role = [role for role in guild.roles if role.name == "sino_conquest"][0]
 
             for channel in channels:
@@ -55,7 +56,7 @@ async def ping_role():
 
     if current_time in PURIFICATION_TIMES:
         for guild in bot.guilds:
-            channels = [channel for channel in guild.channels if channel.name in ('bot-spam', 'spam-bot')]
+            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
             role = [role for role in guild.roles if role.name == "sino_purification"][0]
 
             for channel in channels:
@@ -138,20 +139,40 @@ async def on_ready():
 @bot.command()
 async def soahelp(ctx):
     if ctx.channel.name in BOT_CHANNELS:
-        embed=discord.Embed(title="lammy-bot", description="The following are currently implemented commands for lammy-bot:")
-        embed.add_field(name="Prefix", value="!soa", inline=True)        
-        embed.add_field(name="initialize", value="Sets up the necessary roles and channels for users to interact with lammy-bot.", inline=False)
-        embed.add_field(name="giverole", value="Gives the user a role(s). Accepts the following: guerrilla, conquest, purification.", inline=False)
-        embed.add_field(name="removerole", value="Removes a role(s) from the user. Accepts the following: guerrilla, conquest, purification.", inline=False)
-        await ctx.author.send(embed=embed)
+        message = """**Available Commands**
+**Prefix** - use `!soa[command]` to access bot commands - eg. `!soahelp`
+- `help` : sends a DM to the message author detailing the commands available.
+
+- `initialize` : creates the necessary channels and roles for `lammy-bot` to function.
+      - what this entails - creates `sino_conquest`, `sino_guerrilla`, and `sino_purification` as server roles. Creates the `bot-spam` channel for using other commands.
+
+- `giverole [role]` : gives the message author the requested role(s). Multiple roles can be given by separating them with a `space`. Possible roles are `conquest, guerrilla, purification`.
+      - example - `!soagiverole conquest guerrilla` would give the message author the `sino_conquest` and `sino_guerrilla` roles.
+
+- `removerole [role]` : removes the requested role(s) from the message author. Multiple roles can be given by separating them with a `space`. Possible roles are `conquest, guerrilla, purification`.
+      - example - `!soaremoverole purification` would remove the `sino_purification` role from the message author.
+
+- `weapon [weapon]`: searches the weapon database for the text entered after the command and returns an embed with information on the most relevant weapon.
+      - example - `!soaweapon entrail` would pull up an embed with information for `Entrails of Justice`.
+
+- `skill [skill]` : searches the skill database for the text entered after the command and returns an embed with information on the most relevant skill.
+      - example - `!soaskill hero's harmony` would pull up an embed with information for `Hero's Harmony (I)`.
+
+- `nightmare [nightmare]` : searches the nightmare database for the text entered after the command and returns an embed with information on the most relevant nightmare.
+      - example `!soanightmare uga` would pull up an embed with information for `Ugallu`.
+      
+**lammy-bot will ONLY work in the following channels - `bot-spam`, `spam-bot`, `bot-commands`, `bot-only`, `bots-only`"""
+        await ctx.author.send(content=message)
 
 # initialize command - sets up necessary channels and roles
 @bot.command()
 async def soainitialize(ctx):
-    channel_names = [channel.name for channel in ctx.guild.channels]
+    channel_names = set([channel.name for channel in ctx.guild.channels])
+
+    channel_intersection = channel_names & set(BOT_CHANNELS)
 
     channels_added = []
-    if "bot-spam" not in channel_names:
+    if not channel_intersection:
         await ctx.guild.create_text_channel(name="bot-spam")
         channels_added.append("bot-spam")
 
@@ -171,7 +192,7 @@ async def soainitialize(ctx):
     if channels_added:
         await ctx.channel.send(f"{ctx.author.mention}: Created the following channel - {channels_added}.")
     else:
-        await ctx.channel.send(f"{ctx.author.mention}: 'bot-spam' channel already exists.")
+        await ctx.channel.send(f"{ctx.author.mention}: usable channel(s) already exists - {channel_intersection}.")
     if roles_added:
         await ctx.channel.send(f"{ctx.author.mention}: Created the following roles - {roles_added}.")
     else:
