@@ -138,8 +138,7 @@ async def on_ready():
 # help command - sends a help DM to the caller
 @bot.command()
 async def soahelp(ctx):
-    if ctx.channel.name in BOT_CHANNELS:
-        message = """**Available Commands**
+    message = """**Available Commands**
 **Prefix** - use `!soa[command]` to access bot commands - eg. `!soahelp`
 - `help` : sends a DM to the message author detailing the commands available.
 
@@ -162,7 +161,7 @@ async def soahelp(ctx):
       - example `!soanightmare uga` would pull up an embed with information for `Ugallu`.
       
 **lammy-bot will ONLY work in the following channels - `bot-spam`, `spam-bot`, `bot-commands`, `bot-only`, `bots-only`"""
-        await ctx.author.send(content=message)
+    await ctx.author.send(content=message)
 
 # initialize command - sets up necessary channels and roles
 @bot.command()
