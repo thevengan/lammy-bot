@@ -13,8 +13,6 @@ Developed and maintained by [@michael-arroyo](https://github.com/michael-arroyo)
 
 ## Coming Soon
 - Conquest lookup
-- Weapon evolutions
-- Nightmare evolutions
 
 ## Adding the Bot to Your Server
 - Click on [this link here](https://discord.com/api/oauth2/authorize?client_id=824036912296886282&permissions=8&scope=bot)

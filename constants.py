@@ -1,6 +1,6 @@
 # collection of constants used by the bot and supporting scripts
 
-BOT_CHANNELS = ('bot-spam', 'spam-bot')
+BOT_CHANNELS = ('bot-spam', 'spam-bot', 'bot-commands', 'bot-only', 'bots-only')
 
 MASTER_URL = "https://raw.githubusercontent.com/sinoalice-datamine/data/master/EN/{}.json"
 
