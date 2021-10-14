@@ -148,35 +148,34 @@ async def soahelp(ctx):
 # initialize command - sets up necessary channels and roles
 @bot.command()
 async def soainitialize(ctx):
-    if ctx.channel.name in BOT_CHANNELS:
-        channel_names = [channel.name for channel in ctx.guild.channels]
+    channel_names = [channel.name for channel in ctx.guild.channels]
 
-        channels_added = []
-        if "bot-spam" not in channel_names:
-            await ctx.guild.create_text_channel(name="bot-spam")
-            channels_added.append("bot-spam")
+    channels_added = []
+    if "bot-spam" not in channel_names:
+        await ctx.guild.create_text_channel(name="bot-spam")
+        channels_added.append("bot-spam")
 
-        role_names = [role.name for role in ctx.guild.roles]
+    role_names = [role.name for role in ctx.guild.roles]
 
-        roles_added = []
-        if "sino_guerrilla" not in role_names:
-            await ctx.guild.create_role(name="sino_guerrilla")
-            roles_added.append("sino_guerrilla")
-        if "sino_conquest" not in role_names:
-            await ctx.guild.create_role(name="sino_conquest")
-            roles_added.append("sino_conquest")
-        if "sino_purification" not in role_names:
-            await ctx.guild.create_role(name="sino_purification")
-            roles_added.append("sino_purification")
+    roles_added = []
+    if "sino_guerrilla" not in role_names:
+        await ctx.guild.create_role(name="sino_guerrilla")
+        roles_added.append("sino_guerrilla")
+    if "sino_conquest" not in role_names:
+        await ctx.guild.create_role(name="sino_conquest")
+        roles_added.append("sino_conquest")
+    if "sino_purification" not in role_names:
+        await ctx.guild.create_role(name="sino_purification")
+        roles_added.append("sino_purification")
 
-        if channels_added:
-            await ctx.channel.send(f"{ctx.author.mention}: Created the following channel - {channels_added}.")
-        else:
-            await ctx.channel.send(f"{ctx.author.mention}: 'bot-spam' channel already exists.")
-        if roles_added:
-            await ctx.channel.send(f"{ctx.author.mention}: Created the following roles - {roles_added}.")
-        else:
-            await ctx.channel.send(f"{ctx.author.mention}: Roles already exist.")
+    if channels_added:
+        await ctx.channel.send(f"{ctx.author.mention}: Created the following channel - {channels_added}.")
+    else:
+        await ctx.channel.send(f"{ctx.author.mention}: 'bot-spam' channel already exists.")
+    if roles_added:
+        await ctx.channel.send(f"{ctx.author.mention}: Created the following roles - {roles_added}.")
+    else:
+        await ctx.channel.send(f"{ctx.author.mention}: Roles already exist.")
 
 # giverole command - gives the specified role(s) to the caller
 @bot.command()
@@ -388,6 +387,7 @@ async def on_reaction_add(reaction, user):
             # evolve
             if reaction.emoji.id == evolve_emoji.id:
                 next = message_meta_data.next
+                # weapon
                 if message_meta_data.card_type == "weapon":
                     await reaction.message.clear_reactions()
                     weapon = s.query(Card).filter(Card.cardMstId==next).first()
@@ -407,9 +407,31 @@ async def on_reaction_add(reaction, user):
                     if evolution:
                         await reaction.message.add_reaction(evolve_emoji)
 
+                # nightmare
+                if message_meta_data.card_type == "nightmare":
+                    await reaction.message.clear_reactions()
+                    nightmare = s.query(Card).filter(Card.cardMstId==next).first()
+                    helper = NightmareHelper(nightmare)
+                    embed = helper.create_embed()
+
+                    await reaction.message.edit(embed=embed)
+
+                    evolution = s.query(CardEvolution).filter(CardEvolution.cardMstId==next).first()
+                    
+                    message_meta_data.last_updated = datetime.now()
+                    message_meta_data.prev = message_meta_data.curr
+                    message_meta_data.curr = message_meta_data.next
+                    message_meta_data.next = evolution.evolvedCardMstId if evolution else None
+                    
+                    await reaction.message.add_reaction(devolve_emoji)
+                    if evolution:
+                        await reaction.message.add_reaction(evolve_emoji)
+
+
             # devolve
             if reaction.emoji.id == devolve_emoji.id:
                 prev = message_meta_data.prev
+                # weapon
                 if message_meta_data.card_type == "weapon":
                     await reaction.message.clear_reactions()
                     weapon = s.query(Card).filter(Card.cardMstId==prev).first()
@@ -429,6 +451,28 @@ async def on_reaction_add(reaction, user):
                         await reaction.message.add_reaction(devolve_emoji)
                     sleep(0.5)
                     await reaction.message.add_reaction(evolve_emoji)
+
+                # nightmare
+                if message_meta_data.card_type == "nightmare":
+                    await reaction.message.clear_reactions()
+                    nightmare = s.query(Card).filter(Card.cardMstId==prev).first()
+                    helper = NightmareHelper(nightmare)
+                    embed = helper.create_embed()
+
+                    await reaction.message.edit(embed=embed)
+
+                    devolution = s.query(CardEvolution).filter(CardEvolution.evolvedCardMstId==prev).first()
+
+                    message_meta_data.last_updated = datetime.now()
+                    message_meta_data.next = message_meta_data.curr
+                    message_meta_data.curr = message_meta_data.prev
+                    message_meta_data.prev = devolution.cardMstId if devolution else None
+
+                    if devolution:
+                        await reaction.message.add_reaction(devolve_emoji)
+                    sleep(0.5)
+                    await reaction.message.add_reaction(evolve_emoji)
+                
 
 
 if __name__ == "__main__":
