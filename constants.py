@@ -150,9 +150,9 @@ HELP_MESSAGE = """**Available Commands**
       - example - `!soaremoverole purification` would remove the `sino_purification` role from the message author.
 
 - `weapon [weapon]`: searches the weapon database for the text entered after the command and returns an embed with information on the most relevant weapon.
-      - example - `!soaweapon entrail` would pull up an embed with information for `Entrails of Justice`.
+      - example - `!soaweapon entrail` would pull up an embed with information for `Entrails of Justice`."""
 
-- `skill [skill]` : searches the skill database for the text entered after the command and returns an embed with information on the most relevant skill.
+HELP_MESSAGE_CONT = """- `skill [skill]` : searches the skill database for the text entered after the command and returns an embed with information on the most relevant skill.
       - example - `!soaskill hero's harmony` would pull up an embed with information for `Hero's Harmony (I)`.
 
 - `nightmare [nightmare]` : searches the nightmare database for the text entered after the command and returns an embed with information on the most relevant nightmare.
