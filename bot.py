@@ -19,7 +19,7 @@ from schedules import GUERRILLA_TIMES, CONQUEST_TIMES, PURIFICATION_TIMES
 from models import Card, CardEvolution, Character, DiscordMessage, Skill
 from crud import recreate_database, populate_database, session_scope
 from constants import BOT_CHANNELS, VERSION_URL, WEAPON_ICON_URL, \
-    BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES, HELP_MESSAGE
+    BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES, HELP_MESSAGE, HELP_MESSAGE_CONT
 from embed_helper import JobHelper, NightmareHelper, WeaponHelper
 
 # set the discord bot token
@@ -151,8 +151,8 @@ async def on_ready():
 @bot.command()
 async def soahelp(ctx):
     if ctx.channel.name in BOT_CHANNELS:
-        message = HELP_MESSAGE
-        await ctx.author.send(content=message)
+        await ctx.author.send(content=HELP_MESSAGE)
+        await ctx.author.send(content=HELP_MESSAGE_CONT)
 
 
 # initialize command - sets up necessary channels and roles
