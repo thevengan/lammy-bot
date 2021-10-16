@@ -16,11 +16,11 @@ from sqlalchemy import and_, or_
 
 # local imports
 from schedules import GUERRILLA_TIMES, CONQUEST_TIMES, PURIFICATION_TIMES
-from models import Card, CardEvolution, Skill, DiscordMessage
+from models import Card, CardEvolution, Character, DiscordMessage, Skill
 from crud import recreate_database, populate_database, session_scope
 from constants import BOT_CHANNELS, VERSION_URL, WEAPON_ICON_URL, \
-    BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES
-from embed_helper import WeaponHelper, NightmareHelper
+    BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES, HELP_MESSAGE
+from embed_helper import JobHelper, NightmareHelper, WeaponHelper
 
 # set the discord bot token
 token = os.getenv("DISCORD_BOT_TOKEN")
@@ -32,6 +32,7 @@ intents.members = True
 
 # instantiate bot
 bot = commands.Bot(command_prefix='!', description=description, intents=intents)
+
 
 # ping_role task that acts every minute and pings applicable roles
 @tasks.loop(minutes=1)
@@ -70,6 +71,7 @@ async def ping_role():
                     await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
             except IndexError:
                 continue
+
 
 @tasks.loop(hours=1)
 async def update_db():
@@ -144,34 +146,14 @@ async def on_ready():
 
     await bot.change_presence(activity=discord.Game(name="!soahelp"))
 
+
 # help command - sends a help DM to the caller
 @bot.command()
 async def soahelp(ctx):
     if ctx.channel.name in BOT_CHANNELS:
-        message = """**Available Commands**
-**Prefix** - use `!soa[command]` to access bot commands - eg. `!soahelp`
-- `help` : sends a DM to the message author detailing the commands available.
-
-- `initialize` : creates the necessary channels and roles for `lammy-bot` to function.
-      - what this entails - creates `sino_conquest`, `sino_guerrilla`, and `sino_purification` as server roles. Creates the `bot-spam` channel for using other commands.
-
-- `giverole [role]` : gives the message author the requested role(s). Multiple roles can be given by separating them with a `space`. Possible roles are `conquest, guerrilla, purification`.
-      - example - `!soagiverole conquest guerrilla` would give the message author the `sino_conquest` and `sino_guerrilla` roles.
-
-- `removerole [role]` : removes the requested role(s) from the message author. Multiple roles can be given by separating them with a `space`. Possible roles are `conquest, guerrilla, purification`.
-      - example - `!soaremoverole purification` would remove the `sino_purification` role from the message author.
-
-- `weapon [weapon]`: searches the weapon database for the text entered after the command and returns an embed with information on the most relevant weapon.
-      - example - `!soaweapon entrail` would pull up an embed with information for `Entrails of Justice`.
-
-- `skill [skill]` : searches the skill database for the text entered after the command and returns an embed with information on the most relevant skill.
-      - example - `!soaskill hero's harmony` would pull up an embed with information for `Hero's Harmony (I)`.
-
-- `nightmare [nightmare]` : searches the nightmare database for the text entered after the command and returns an embed with information on the most relevant nightmare.
-      - example `!soanightmare uga` would pull up an embed with information for `Ugallu`.
-      
-**lammy-bot will ONLY work in the following channels - `bot-spam`, `spam-bot`, `bot-commands`, `bot-only`, `bots-only`"""
+        message = HELP_MESSAGE
         await ctx.author.send(content=message)
+
 
 # initialize command - sets up necessary channels and roles
 @bot.command()
@@ -207,6 +189,7 @@ async def soainitialize(ctx):
     else:
         await ctx.channel.send(f"{ctx.author.mention}: Roles already exist.")
 
+
 # giverole command - gives the specified role(s) to the caller
 @bot.command()
 async def soagiverole(ctx):
@@ -240,6 +223,7 @@ async def soagiverole(ctx):
         else:
             await ctx.channel.send(f"{ctx.author.mention}: You're already in that role(s).")
 
+
 # removerole command - removes the specified role(s) from the caller
 @bot.command()
 async def soaremoverole(ctx):
@@ -267,13 +251,14 @@ async def soaremoverole(ctx):
         else:
             await ctx.channel.send(f"{ctx.author.mention}: You're not a part of that role(s).")
 
+
 # weapon command - queries the db and displays information about the requested weapon
 @bot.command()
 async def soaweapon(ctx):
     if ctx.channel.name in BOT_CHANNELS:
         weapon_name = ctx.message.content[11:].strip()
 
-        if "" == weapon_name.strip():
+        if "" == weapon_name:
             return
 
         with session_scope() as s:
@@ -302,13 +287,14 @@ async def soaweapon(ctx):
             evolve_emoji = ctx.bot.get_emoji(897679174712578109)
             await response.add_reaction(evolve_emoji)
 
+
 # skill command - queries the db and displays information about the requested skill
 @bot.command()
 async def soaskill(ctx):
     if ctx.channel.name in BOT_CHANNELS:
         skill_name = ctx.message.content[10:].strip()
 
-        if "" == skill_name.strip():
+        if "" == skill_name:
             return
 
         with session_scope() as s:
@@ -372,7 +358,7 @@ async def soanightmare(ctx):
     if ctx.channel.name in BOT_CHANNELS:
         nightmare_name = ctx.message.content[14:].strip()
 
-        if "" == nightmare_name.strip():
+        if "" == nightmare_name:
             return
 
         with session_scope() as s:
@@ -402,6 +388,31 @@ async def soanightmare(ctx):
             await response.add_reaction(evolve_emoji)
 
 
+# class command - queries the db and displays information about the requested class
+@bot.command()
+async def soaclass(ctx):
+    if ctx.channel.name in BOT_CHANNELS:
+        entry = ctx.message.content[10:].strip()
+
+        if "" == entry:
+            return
+
+        character_name = entry.split('/')[0]
+        class_name = entry.split('/')[1]
+
+        with session_scope() as s:
+            character = s.query(Character).filter(and_(Character.characterUniqueName.ilike(f"%{character_name}%")), Character.name.ilike(f"%{class_name}%")).first()
+
+            if character is None:
+                await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a class matching {character_name}/{class_name}. Please try again.")
+
+            helper = JobHelper(character)
+            embed = helper.create_embed()
+
+            await ctx.channel.send(embed=embed)
+
+
+# on_reaction_add event - used for evolving/devolving weapon and nightmare embeds
 @bot.event
 async def on_reaction_add(reaction, user):
     if user == bot.user:
@@ -503,7 +514,6 @@ async def on_reaction_add(reaction, user):
                     sleep(0.5)
                     await reaction.message.add_reaction(evolve_emoji)
                 
-
 
 if __name__ == "__main__":
     bot.run(token)

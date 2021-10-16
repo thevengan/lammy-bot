@@ -1,5 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Boolean, Date, BigInteger
+from sqlalchemy.sql.expression import column
 from sqlalchemy.sql.sqltypes import DateTime
 
 
@@ -85,6 +86,10 @@ class CharacterAbility(Base):
     characterMstId = Column(Integer)
     name = Column(String)
     releaseLevel = Column(Integer)
+    skillType = Column(Integer)
+    effectType = Column(Integer)
+    effectValue = Column(Integer)
+    cardDetailType = Column(Integer)
 
 class DiscordMessage(Base):
     __tablename__ = 'discordMessages'
