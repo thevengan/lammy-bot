@@ -1,7 +1,6 @@
 # discord import
 import discord
 from discord import Embed
-from discord import channel
 from discord.ext import commands, tasks
 
 # default library imports
@@ -16,7 +15,7 @@ from sqlalchemy import and_, or_
 
 # local imports
 from schedules import GUERRILLA_TIMES, CONQUEST_TIMES, PURIFICATION_TIMES
-from models import Card, CardEvolution, Character, DiscordMessage, Skill
+from models import Card, CardEvolution, Character, DiscordMessage, Skill, GuildToggle
 from crud import recreate_database, populate_database, session_scope
 from constants import BOT_CHANNELS, VERSION_URL, WEAPON_ICON_URL, \
     BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES, HELP_MESSAGE, HELP_MESSAGE_CONT
@@ -41,36 +40,78 @@ async def ping_role():
 
     if current_time in GUERRILLA_TIMES:
         for guild in bot.guilds:
-            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
-            try:
-                role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
+            with session_scope() as s:
+                db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
 
-                for channel in channels:
-                    await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
-            except IndexError:
-                continue
+                if not db_entry:
+                    channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                    try:
+                        role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
+
+                        for channel in channels:
+                            await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
+                    except IndexError:
+                        continue
+                else:
+                    if db_entry.guerrilla:
+                        channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                        try:
+                            role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
+
+                            for channel in channels:
+                                await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
+                        except IndexError:
+                            continue
     
     if current_time in CONQUEST_TIMES:
         for guild in bot.guilds:
-            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
-            try:
-                role = [role for role in guild.roles if role.name == "sino_conquest"][0]
+            with session_scope() as s:
+                db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
 
-                for channel in channels:
-                    await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
-            except IndexError:
-                continue
+                if not db_entry:
+                    channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                    try:
+                        role = [role for role in guild.roles if role.name == "sino_conquest"][0]
+
+                        for channel in channels:
+                            await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
+                    except IndexError:
+                        continue
+                else:
+                    if db_entry.conquest:
+                        channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                        try:
+                            role = [role for role in guild.roles if role.name == "sino_conquest"][0]
+
+                            for channel in channels:
+                                await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
+                        except IndexError:
+                            continue
 
     if current_time in PURIFICATION_TIMES:
         for guild in bot.guilds:
-            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
-            try:
-                role = [role for role in guild.roles if role.name == "sino_purification"][0]
+            with session_scope() as s:
+                db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
 
-                for channel in channels:
-                    await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
-            except IndexError:
-                continue
+            if not db_entry:
+                channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                try:
+                    role = [role for role in guild.roles if role.name == "sino_purification"][0]
+
+                    for channel in channels:
+                        await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
+                except IndexError:
+                    continue
+            else:
+                if db_entry.purification:
+                    channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                    try:
+                        role = [role for role in guild.roles if role.name == "sino_purification"][0]
+
+                        for channel in channels:
+                            await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
+                    except IndexError:
+                        continue    
 
 
 @tasks.loop(hours=1)
@@ -250,6 +291,73 @@ async def soaremoverole(ctx):
             await ctx.channel.send(f"{ctx.author.mention}: You've been removed from the following role(s) - {roles_removed}.")
         else:
             await ctx.channel.send(f"{ctx.author.mention}: You're not a part of that role(s).")
+
+
+# guildtoggle command - toggles whether the @mentions for conq, guerr, and puri are enabled
+@bot.command()
+async def soatoggle(ctx):
+    if ctx.channel.name in BOT_CHANNELS:
+        actions_enabled = []
+        actions_disabled = []
+
+        with session_scope() as s:
+            guild = s.query(GuildToggle).filter(GuildToggle.guild_id==ctx.guild.id).first()
+
+            if guild:
+                if "guerrilla" in ctx.message.content:
+                    if guild.guerrilla:
+                        guild.guerrilla = not guild.guerrilla
+                        actions_disabled.append("Guerrilla")
+                    else:
+                        guild.guerrilla = not guild.guerrilla
+                        actions_enabled.append("Guerrilla")
+                if "conquest" in ctx.message.content:
+                    if guild.conquest:
+                        guild.conquest = not guild.conquest
+                        actions_disabled.append("Conquest")
+                    else:
+                        guild.conquest = not guild.conquest
+                        actions_enabled.append("Conquest")
+                if "purification" in ctx.message.content:
+                    if guild.purification:
+                        guild.purification = not guild.purification
+                        actions_disabled.append("Purification")
+                    else:
+                        guild.purification = not guild.purification
+                        actions_enabled.append("Purification")
+            else:
+                new_guild = GuildToggle(
+                    guild_id=ctx.guild.id
+                )
+                s.add(new_guild)
+                guild = s.query(GuildToggle).filter(GuildToggle.guild_id==ctx.guild.id).first()
+
+                if "guerrilla" in ctx.message.content:
+                    if guild.guerrilla:
+                        guild.guerrilla = not guild.guerrilla
+                        actions_disabled.append("Guerrilla")
+                    else:
+                        guild.guerrilla = not guild.guerrilla
+                        actions_enabled.append("Guerrilla")
+                if "conquest" in ctx.message.content:
+                    if guild.conquest:
+                        guild.conquest = not guild.conquest
+                        actions_disabled.append("conquest")
+                    else:
+                        guild.conquest = not guild.conquest
+                        actions_enabled.append("conquest")
+                if "purification" in ctx.message.content:
+                    if guild.purification:
+                        guild.purification = not guild.purification
+                        actions_disabled.append("purification")
+                    else:
+                        guild.purification = not guild.purification
+                        actions_enabled.append("purification")
+
+        if actions_enabled:
+            await ctx.channel.send(f"{ctx.author.mention}: The following @mention(s) have been TURNED ON - {actions_enabled}.")
+        if actions_disabled:
+            await ctx.channel.send(f"{ctx.author.mention}: The following @mention(s) have been TURNED OFF - {actions_disabled}.")
 
 
 # weapon command - queries the db and displays information about the requested weapon
@@ -467,7 +575,6 @@ async def on_reaction_add(reaction, user):
                     await reaction.message.add_reaction(devolve_emoji)
                     if evolution:
                         await reaction.message.add_reaction(evolve_emoji)
-
 
             # devolve
             if reaction.emoji.id == devolve_emoji.id:
