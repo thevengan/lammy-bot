@@ -7,6 +7,7 @@ Developed and maintained by [@michael-arroyo](https://github.com/michael-arroyo)
 ## Features
 - Easy setup in any server
 - @ mentions for conquest, guerilla, and purification
+    - **(NEW) Now you can toggle whether these @mentions are broadcasted to your server!**
 - Weapon lookup
 - Weapon Skill lookup
 - Nightmare lookup
@@ -29,6 +30,8 @@ Developed and maintained by [@michael-arroyo](https://github.com/michael-arroyo)
     - example - `!soagiverole conquest guerrilla` would give the message author the `sino_conquest` and `sino_guerrilla` roles.
 - `removerole [role]` : removes the requested role(s) from the message author. Multiple roles can be given by separating them with a `space`. Possible roles are `conquest, guerrilla, purification`.
     - example - `!soaremoverole purification` would remove the `sino_purification` role from the message author.
+- `toggle [@mention]` : toggles the requested @mention for the current server. Multiple @mentions can be given by separating them with a `space`. Possible @mentions are `conquest, guerrilla, purification`. You can turn off an @mention at the same time you turn another @mention off.
+    - example - `!soatoggle guerrilla conquest` would toggle the @mentions for the `sino_guerrilla` and `sino_conquest` roles for the current server.
 - `weapon [weapon]`: searches the weapon database for the text entered after the command and returns an embed with information on the most relevant weapon.
     - example - `!soaweapon entrail` would pull up an embed with information for `Entrails of Justice`.
 - `skill [skill]` : searches the skill database for the text entered after the command and returns an embed with information on the most relevant skill.

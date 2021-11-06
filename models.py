@@ -1,6 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Boolean, Date, BigInteger
-from sqlalchemy.sql.expression import column
 from sqlalchemy.sql.sqltypes import DateTime
 
 
@@ -99,3 +98,10 @@ class DiscordMessage(Base):
     prev = Column(Integer)
     curr = Column(Integer)
     next = Column(Integer)
+
+class GuildToggle(Base):
+    __tablename__ = 'guildToggle'
+    guild_id = Column(BigInteger, primary_key=True)
+    conquest = Column(Boolean, default=True)
+    guerrilla = Column(Boolean, default=True)
+    purification = Column(Boolean, default=True)

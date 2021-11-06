@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from contextlib import contextmanager
 
-from models import Base, Card, Skill
+from models import Base, Card, Skill, CardEvolution, Item, LimitBreakSkill, Character, CharacterAbility, DiscordMessage
 from constants import MASTER_URL, TABLE_LIST
 
 db_url = os.getenv("DATABASE_URL")
@@ -28,9 +28,26 @@ def session_scope():
     finally:
         session.close()
 
+
 def recreate_database():
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    Card.__table__.drop(engine)
+    Skill.__table__.drop(engine)
+    CardEvolution.__table__.drop(engine)
+    Item.__table__.drop(engine)
+    LimitBreakSkill.__table__.drop(engine)
+    Character.__table__.drop(engine)
+    CharacterAbility.__table__.drop(engine)
+    DiscordMessage.__table__.drop(engine)
+
+    Card.__table__.create(engine)
+    Skill.__table__.create(engine)
+    CardEvolution.__table__.create(engine)
+    Item.__table__.create(engine)
+    LimitBreakSkill.__table__.create(engine)
+    Character.__table__.create(engine)
+    CharacterAbility.__table__.create(engine)
+    DiscordMessage.__table__.create(engine)
+
 
 def populate_database():
     list_of_string_columns = [
