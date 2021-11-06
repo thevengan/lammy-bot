@@ -149,6 +149,9 @@ HELP_MESSAGE = """**Available Commands**
 - `removerole [role]` : removes the requested role(s) from the message author. Multiple roles can be given by separating them with a `space`. Possible roles are `conquest, guerrilla, purification`.
       - example - `!soaremoverole purification` would remove the `sino_purification` role from the message author.
 
+- `toggle [@mention]` : toggles the requested @mention for the current server. Multiple @mentions can be given by separating them with a `space`. Possible @mentions are `conquest, guerrilla, purification`. You can turn off an @mention at the same time you turn another @mention off.
+    - example - `!soatoggle guerrilla conquest` would toggle the @mentions for the `sino_guerrilla` and `sino_conquest` roles for the current server.
+
 - `weapon [weapon]`: searches the weapon database for the text entered after the command and returns an embed with information on the most relevant weapon.
       - example - `!soaweapon entrail` would pull up an embed with information for `Entrails of Justice`."""
 
