@@ -20,6 +20,7 @@ from crud import recreate_database, populate_database, session_scope
 from constants import BOT_CHANNELS, VERSION_URL, WEAPON_ICON_URL, \
     BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES, HELP_MESSAGE, HELP_MESSAGE_CONT
 from embed_helper import JobHelper, NightmareHelper, WeaponHelper
+from helpers import integer_to_roman
 
 # set the discord bot token
 token = os.getenv("DISCORD_BOT_TOKEN")
@@ -370,7 +371,7 @@ async def soaweapon(ctx):
             return
 
         with session_scope() as s:
-            weapon = s.query(Card).filter(and_(Card.name.ilike(f'%{weapon_name}%'), Card.evolutionLevel==0, Card.cardType==1)).first()
+            weapon = s.query(Card).filter(and_(Card.name.ilike(f"%{weapon_name.replace(' ', '%')}%"), Card.evolutionLevel==0, Card.cardType==1)).first()
 
             if weapon is None:
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a weapon matching {weapon_name}. Please try again.")
@@ -405,8 +406,13 @@ async def soaskill(ctx):
         if "" == skill_name:
             return
 
+        for section in skill_name.split():
+            if section.isdecimal():
+                new_section = integer_to_roman(int(section))
+                skill_name = skill_name.replace(section, new_section)
+
         with session_scope() as s:
-            skill = s.query(Skill).filter(and_(Skill.name.ilike(f"%{skill_name}%"), Skill.category != 4)).first()
+            skill = s.query(Skill).filter(and_(Skill.name.ilike(f"%{skill_name.replace(' ', '%')}%"), Skill.category != 4)).first()
 
             if skill is None:
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a skill matching {skill_name}. Please try again.")
@@ -470,7 +476,7 @@ async def soanightmare(ctx):
             return
 
         with session_scope() as s:
-            nightmare = s.query(Card).filter(and_(Card.name.ilike(f"%{nightmare_name}%"), Card.cardType==3)).first()
+            nightmare = s.query(Card).filter(and_(Card.name.ilike(f"%{nightmare_name.replace(' ', '%')}%"), Card.cardType==3)).first()
 
             if nightmare is None:
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a nightmare matching {nightmare_name}. Please try again.")
