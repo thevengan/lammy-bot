@@ -43,7 +43,7 @@ async def ping_role():
             with session_scope() as s:
                 db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
 
-                if not db_entry:
+                if db_entry is None:
                     channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                     try:
                         role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
@@ -68,7 +68,7 @@ async def ping_role():
             with session_scope() as s:
                 db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
 
-                if not db_entry:
+                if db_entry is None:
                     channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                     try:
                         role = [role for role in guild.roles if role.name == "sino_conquest"][0]
@@ -93,7 +93,7 @@ async def ping_role():
             with session_scope() as s:
                 db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
 
-            if not db_entry:
+            if db_entry is None:
                 channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                 try:
                     role = [role for role in guild.roles if role.name == "sino_purification"][0]
