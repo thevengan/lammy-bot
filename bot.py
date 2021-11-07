@@ -93,17 +93,7 @@ async def ping_role():
             with session_scope() as s:
                 db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
 
-            if db_entry is None:
-                channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
-                try:
-                    role = [role for role in guild.roles if role.name == "sino_purification"][0]
-
-                    for channel in channels:
-                        await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
-                except IndexError:
-                    continue
-            else:
-                if db_entry.purification:
+                if db_entry is None:
                     channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                     try:
                         role = [role for role in guild.roles if role.name == "sino_purification"][0]
@@ -111,7 +101,17 @@ async def ping_role():
                         for channel in channels:
                             await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
                     except IndexError:
-                        continue    
+                        continue
+                else:
+                    if db_entry.purification:
+                        channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                        try:
+                            role = [role for role in guild.roles if role.name == "sino_purification"][0]
+
+                            for channel in channels:
+                                await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
+                        except IndexError:
+                            continue    
 
 
 @tasks.loop(hours=1)
