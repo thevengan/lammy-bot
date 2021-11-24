@@ -28,6 +28,7 @@ class Card(Base):
     isInfiniteEvolution = Column(Boolean)
     isParameterCustomEnabled = Column(Boolean)
     isSkillCustomEnabled = Column(Boolean)
+    isRelease = Column(Boolean)
 
 class CardEvolution(Base):
     __tablename__ = 'cardEvolution'
@@ -78,6 +79,7 @@ class Character(Base):
     favoriteWeapon = Column(Integer)
     resourceName = Column(String)
     characterVoice = Column(String)
+    displayStartTime = Column(Integer)
 
 class CharacterAbility(Base):
     __tablename__ = 'characterAbility'
