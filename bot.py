@@ -11,7 +11,7 @@ from datetime import time, datetime
 from time import sleep
 
 # non default imports
-from sqlalchemy import and_, or_
+from sqlalchemy import or_
 
 # local imports
 from schedules import GUERRILLA_TIMES, CONQUEST_TIMES, PURIFICATION_TIMES
@@ -371,7 +371,7 @@ async def soaweapon(ctx):
             return
 
         with session_scope() as s:
-            weapon = s.query(Card).filter(and_(Card.name.ilike(f"%{weapon_name.replace(' ', '%')}%"), Card.evolutionLevel==0, Card.cardType==1)).first()
+            weapon = s.query(Card).filter(Card.name.ilike(f"%{weapon_name.replace(' ', '%')}%"), Card.evolutionLevel==0, Card.cardType==1, Card.isRelease).first()
 
             if weapon is None:
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a weapon matching {weapon_name}. Please try again.")
@@ -412,7 +412,7 @@ async def soaskill(ctx):
                 skill_name = skill_name.replace(section, new_section)
 
         with session_scope() as s:
-            skill = s.query(Skill).filter(and_(Skill.name.ilike(f"%{skill_name.replace(' ', '%')}%"), Skill.category != 4)).first()
+            skill = s.query(Skill).filter(Skill.name.ilike(f"%{skill_name.replace(' ', '%')}%"), Skill.category != 4).first()
 
             if skill is None:
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a skill matching {skill_name}. Please try again.")
@@ -476,7 +476,7 @@ async def soanightmare(ctx):
             return
 
         with session_scope() as s:
-            nightmare = s.query(Card).filter(and_(Card.name.ilike(f"%{nightmare_name.replace(' ', '%')}%"), Card.cardType==3)).first()
+            nightmare = s.query(Card).filter(Card.name.ilike(f"%{nightmare_name.replace(' ', '%')}%"), Card.cardType==3, Card.isRelease).first()
 
             if nightmare is None:
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a nightmare matching {nightmare_name}. Please try again.")
@@ -515,7 +515,7 @@ async def soaclass(ctx):
         class_name = entry.split('/')[1]
 
         with session_scope() as s:
-            character = s.query(Character).filter(and_(Character.characterUniqueName.ilike(f"%{character_name}%")), Character.name.ilike(f"%{class_name}%")).first()
+            character = s.query(Character).filter(Character.characterUniqueName.ilike(f"%{character_name}%"), Character.name.ilike(f"%{class_name}%"), Character.displayStartTime!=1924959599).first()
 
             if character is None:
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a class matching {character_name}/{class_name}. Please try again.")
