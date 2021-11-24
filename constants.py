@@ -42,6 +42,7 @@ TABLE_LIST = [
             "isInfiniteEvolution",
             "isParameterCustomEnabled",
             "isSkillCustomEnabled",
+            "isRelease",
         ]
     },
     {
@@ -107,6 +108,7 @@ TABLE_LIST = [
             "favoriteWeapon",
             "resourceName",
             "characterVoice",
+            "displayStartTime",
         ]
     },
     {
