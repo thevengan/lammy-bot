@@ -1,12 +1,12 @@
-from collections import OrderedDict
-
-from discord import Embed
-from sqlalchemy.sql.expression import false
+from nextcord import Embed, colour
+from sqlalchemy import or_
+from sqlalchemy.sql.expression import desc
 from tabulate import tabulate
 
-from constants import IMAGE_URL, CLASS_IMAGE_URL, WEAPON_INTEGER_VALUES
+from constants import IMAGE_URL, CLASS_IMAGE_URL, WEAPON_INTEGER_VALUES, \
+    BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES, WEAPON_ICON_URL
 from crud import session_scope
-from models import CharacterAbility, Skill
+from models import Card, CharacterAbility, Skill
 
 class WeaponHelper:
     def __init__(self, weapon):
@@ -474,3 +474,59 @@ class JobHelper:
             embed.add_field(name="Total Stats", value=class_stats, inline=True)
             embed.set_footer(text=f"Voice Actor: {job.characterVoice}")
             return embed
+
+
+class SkillHelper:
+    def __init__(self, skill):
+        self.skill = skill
+
+    def create_embed(self):
+        skill = self.skill
+
+        with session_scope() as s:
+            description = skill.description.replace("\\n", " ")
+            description += "\n\nWeapons with skill: "
+            weapons_with_skill = list(set([
+                weapon.name for weapon in s.query(Card).filter(or_(
+                    Card.questSkillMstId==skill.skillMstId,
+                    Card.frontSkillMstId==skill.skillMstId,
+                    Card.autoSkillMstId==skill.skillMstId)).limit(20).all()
+            ]))
+        for weapon in weapons_with_skill:
+            description += weapon + ", "
+        description = description[:-2] + "."
+
+        color = 0x000000
+        if skill.primaryIcon == 1:
+            color = 0x8B0000
+        if skill.primaryIcon == 2:
+            color = 0x00008B
+        if skill.primaryIcon == 3:
+            color = 0xFFFFFF
+        if skill.primaryIcon in BUFF_SKILL_PRIMARY_ICON_VALUES:
+            color = 0x6A0DAD
+        if skill.primaryIcon in DEBUFF_SKILL_PRIMARY_ICON_VALUES:
+            color = 0x006D5B
+
+        weapon_icon = ""
+        if skill.primaryIcon == 1 and skill.rangeIcon == 1:
+            weapon_icon = "1aBXxZdj0QvOEhrfdD5A0Vn7wUGPwpkGa"
+        if skill.primaryIcon == 1 and skill.rangeIcon > 1:
+            weapon_icon = "1amsazOzjdKAjELxTVbD92imxgtMgpxYv"
+        if skill.primaryIcon == 2 and skill.rangeIcon == 1:
+            weapon_icon = "15o-B24K2YeGXmPIUE6cTBXc7xkSfVDpm"
+        if skill.primaryIcon == 2 and skill.rangeIcon > 1:
+            weapon_icon = "1X3fdAZUMtKsXxjNbv1J5C_05Sj42QbN4"
+        if skill.primaryIcon in BUFF_SKILL_PRIMARY_ICON_VALUES:
+            weapon_icon = "1N_BYaXFrBjKzPEIFex2ywsWDPbnxcahz"
+        if skill.primaryIcon in DEBUFF_SKILL_PRIMARY_ICON_VALUES:
+            weapon_icon = "11rm0tpaxFYoInn6m0KguU8ND9zmlLZUF"
+        if skill.primaryIcon == 3:
+            weapon_icon = "1ALhoczKu4VyQTzeEscTGVCOG0E0V3Mp9"
+
+        embed = Embed(title=skill.name, description=description, type="rich", colour=color)
+        embed.set_thumbnail(url=WEAPON_ICON_URL.format(weapon_icon))
+        embed.add_field(name="SP", value=str(skill.sp), inline=True)
+        embed.add_field(name="Targets", value=f"{skill.typeLabel if skill.typeLabel != 'own' else 'Self'}", inline=True)
+
+        return embed
