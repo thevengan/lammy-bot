@@ -96,7 +96,6 @@ class DiscordMessage(Base):
     __tablename__ = 'discordMessages'
     message_id = Column(BigInteger, primary_key=True)
     last_updated = Column(DateTime)
-    card_type = Column(String)
     prev = Column(Integer)
     curr = Column(Integer)
     next = Column(Integer)

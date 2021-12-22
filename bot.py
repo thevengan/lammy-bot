@@ -1,7 +1,7 @@
-# discord import
-import discord
-from discord import Embed
-from discord.ext import commands, tasks
+# nextcord import
+import nextcord
+from nextcord import SelectOption
+from nextcord.ext import commands, tasks
 
 # default library imports
 import os
@@ -10,24 +10,21 @@ import json
 from datetime import time, datetime
 from time import sleep
 
-# non default imports
-from sqlalchemy import or_
-
 # local imports
 from schedules import GUERRILLA_TIMES, CONQUEST_TIMES, PURIFICATION_TIMES
 from models import Card, CardEvolution, Character, DiscordMessage, Skill, GuildToggle
 from crud import recreate_database, populate_database, session_scope
-from constants import BOT_CHANNELS, VERSION_URL, WEAPON_ICON_URL, \
-    BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES, HELP_MESSAGE, HELP_MESSAGE_CONT
-from embed_helper import JobHelper, NightmareHelper, WeaponHelper
+from constants import BOT_CHANNELS, VERSION_URL, HELP_MESSAGE, HELP_MESSAGE_CONT
+from embed_helper import JobHelper, NightmareHelper, SkillHelper, WeaponHelper
 from helpers import integer_to_roman
+from views import NightmareView, SkillDropdown, SkillView, WeaponView
 
-# set the discord bot token
+# set the nextcord bot token
 token = os.getenv("DISCORD_BOT_TOKEN")
 
 description = "TODO: Change Me"
 
-intents = discord.Intents.default()
+intents = nextcord.Intents.default()
 intents.members = True
 
 # instantiate bot
@@ -186,7 +183,7 @@ async def on_ready():
     print("Tasks started")
     print("------------")
 
-    await bot.change_presence(activity=discord.Game(name="!soahelp"))
+    await bot.change_presence(activity=nextcord.Game(name="!soahelp"))
 
 
 # help command - sends a help DM to the caller
@@ -379,22 +376,19 @@ async def soaweapon(ctx):
             
             helper = WeaponHelper(weapon)
             embed = helper.create_embed()
+            view = WeaponView()
 
             evolution = s.query(CardEvolution).filter(CardEvolution.cardMstId==weapon.cardMstId).first()
 
-            response = await ctx.channel.send(embed=embed)
+            response = await ctx.channel.send(embed=embed, view=view)
             message_meta_data = DiscordMessage(
                 message_id=response.id,
                 last_updated=datetime.now(),
-                card_type="weapon",
                 prev=None,
                 curr=weapon.cardMstId,
                 next=evolution.evolvedCardMstId if evolution else None
             )
             s.add(message_meta_data)
-
-            evolve_emoji = ctx.bot.get_emoji(897679174712578109)
-            await response.add_reaction(evolve_emoji)
 
 
 # skill command - queries the db and displays information about the requested skill
@@ -418,52 +412,15 @@ async def soaskill(ctx):
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a skill matching {skill_name}. Please try again.")
                 return
 
-            description = skill.description.replace("\\n", " ")
-            description = description + "\n\nWeapons with skill: "
-            weapons_with_skill = list(set([
-                weapon.name for weapon in s.query(Card).filter(or_(
-                Card.questSkillMstId==skill.skillMstId, 
-                Card.frontSkillMstId==skill.skillMstId, 
-                Card.autoSkillMstId==skill.skillMstId)).limit(20).all()
-                ]))
-            for weapon in weapons_with_skill:
-                description = description + weapon + ", "
-            description = description[:-2] + "."
+            helper = SkillHelper(skill)
+            embed = helper.create_embed()
 
-            color = 0x000000
-            if skill.primaryIcon == 1:
-                color = 0x8B0000
-            if skill.primaryIcon == 2:
-                color = 0x00008B
-            if skill.primaryIcon == 3:
-                color = 0xFFFFFF
-            if skill.primaryIcon in BUFF_SKILL_PRIMARY_ICON_VALUES:
-                color = 0x6A0DAD
-            if skill.primaryIcon in DEBUFF_SKILL_PRIMARY_ICON_VALUES:
-                color = 0x006D5B
+            skill_alts = s.query(Skill).filter(Skill.name==skill.name, Skill.category != 4).all()
+            alt_costs = [SelectOption(label=f"{skill.sp} (ID: {skill.skillMstId})") for skill in skill_alts]
+            dropdown = SkillDropdown(alt_costs)
+            view = SkillView(dropdown)
 
-            weapon_icon = ""
-            if skill.primaryIcon == 1 and skill.rangeIcon == 1:
-                weapon_icon = "1aBXxZdj0QvOEhrfdD5A0Vn7wUGPwpkGa"
-            if skill.primaryIcon == 1 and skill.rangeIcon > 1:
-                weapon_icon = "1amsazOzjdKAjELxTVbD92imxgtMgpxYv"
-            if skill.primaryIcon == 2 and skill.rangeIcon == 1:
-                weapon_icon = "15o-B24K2YeGXmPIUE6cTBXc7xkSfVDpm"
-            if skill.primaryIcon == 2 and skill.rangeIcon > 1:
-                weapon_icon = "1X3fdAZUMtKsXxjNbv1J5C_05Sj42QbN4"
-            if skill.primaryIcon in BUFF_SKILL_PRIMARY_ICON_VALUES:
-                weapon_icon = "1N_BYaXFrBjKzPEIFex2ywsWDPbnxcahz"
-            if skill.primaryIcon in DEBUFF_SKILL_PRIMARY_ICON_VALUES:
-                weapon_icon = "11rm0tpaxFYoInn6m0KguU8ND9zmlLZUF"
-            if skill.primaryIcon == 3:
-                weapon_icon = "1ALhoczKu4VyQTzeEscTGVCOG0E0V3Mp9"
-
-            embed = Embed(title=skill.name, description=description, type="rich", colour=color)
-            embed.set_thumbnail(url=WEAPON_ICON_URL.format(weapon_icon))
-            embed.add_field(name="SP", value=str(skill.sp), inline=True)
-            embed.add_field(name="Targets", value=f"{skill.typeLabel if skill.typeLabel != 'own' else 'Self'}", inline=True)
-
-            await ctx.channel.send(embed=embed)
+            await ctx.channel.send(embed=embed, view=view)
 
 
 # nightmare command - queries the db and displays information about the requested nightmare
@@ -481,25 +438,22 @@ async def soanightmare(ctx):
             if nightmare is None:
                 await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a nightmare matching {nightmare_name}. Please try again.")
                 return
-
+            
             helper = NightmareHelper(nightmare)
             embed = helper.create_embed()
+            view = NightmareView()
 
             evolution = s.query(CardEvolution).filter(CardEvolution.cardMstId==nightmare.cardMstId).first()
 
-            response = await ctx.channel.send(embed=embed)
+            response = await ctx.channel.send(embed=embed, view=view)
             message_meta_data = DiscordMessage(
                 message_id=response.id,
                 last_updated=datetime.now(),
-                card_type="nightmare",
                 prev=None,
                 curr=nightmare.cardMstId,
                 next=evolution.evolvedCardMstId if evolution else None
             )
             s.add(message_meta_data)
-
-            evolve_emoji = ctx.bot.get_emoji(897679174712578109)
-            await response.add_reaction(evolve_emoji)
 
 
 # class command - queries the db and displays information about the requested class
@@ -525,108 +479,6 @@ async def soaclass(ctx):
 
             await ctx.channel.send(embed=embed)
 
-
-# on_reaction_add event - used for evolving/devolving weapon and nightmare embeds
-@bot.event
-async def on_reaction_add(reaction, user):
-    if user == bot.user:
-        return
-    if reaction.message.channel.name in BOT_CHANNELS:
-        with session_scope() as s:
-            evolve_emoji = bot.get_emoji(897679174712578109)
-            devolve_emoji = bot.get_emoji(897679128671715369)
-            message_id = reaction.message.id
-
-            message_meta_data = s.query(DiscordMessage).filter(DiscordMessage.message_id==message_id).first()
-
-            # evolve
-            if reaction.emoji.id == evolve_emoji.id:
-                next = message_meta_data.next
-                # weapon
-                if message_meta_data.card_type == "weapon":
-                    await reaction.message.clear_reactions()
-                    weapon = s.query(Card).filter(Card.cardMstId==next).first()
-                    helper = WeaponHelper(weapon)
-                    embed = helper.create_embed()
-
-                    await reaction.message.edit(embed=embed)
-
-                    evolution = s.query(CardEvolution).filter(CardEvolution.cardMstId==next).first()
-                    
-                    message_meta_data.last_updated = datetime.now()
-                    message_meta_data.prev = message_meta_data.curr
-                    message_meta_data.curr = message_meta_data.next
-                    message_meta_data.next = evolution.evolvedCardMstId if evolution else None
-                    
-                    await reaction.message.add_reaction(devolve_emoji)
-                    if evolution:
-                        await reaction.message.add_reaction(evolve_emoji)
-
-                # nightmare
-                if message_meta_data.card_type == "nightmare":
-                    await reaction.message.clear_reactions()
-                    nightmare = s.query(Card).filter(Card.cardMstId==next).first()
-                    helper = NightmareHelper(nightmare)
-                    embed = helper.create_embed()
-
-                    await reaction.message.edit(embed=embed)
-
-                    evolution = s.query(CardEvolution).filter(CardEvolution.cardMstId==next).first()
-                    
-                    message_meta_data.last_updated = datetime.now()
-                    message_meta_data.prev = message_meta_data.curr
-                    message_meta_data.curr = message_meta_data.next
-                    message_meta_data.next = evolution.evolvedCardMstId if evolution else None
-                    
-                    await reaction.message.add_reaction(devolve_emoji)
-                    if evolution:
-                        await reaction.message.add_reaction(evolve_emoji)
-
-            # devolve
-            if reaction.emoji.id == devolve_emoji.id:
-                prev = message_meta_data.prev
-                # weapon
-                if message_meta_data.card_type == "weapon":
-                    await reaction.message.clear_reactions()
-                    weapon = s.query(Card).filter(Card.cardMstId==prev).first()
-                    helper = WeaponHelper(weapon)
-                    embed = helper.create_embed()
-
-                    await reaction.message.edit(embed=embed)
-
-                    devolution = s.query(CardEvolution).filter(CardEvolution.evolvedCardMstId==prev).first()
-
-                    message_meta_data.last_updated = datetime.now()
-                    message_meta_data.next = message_meta_data.curr
-                    message_meta_data.curr = message_meta_data.prev
-                    message_meta_data.prev = devolution.cardMstId if devolution else None
-
-                    if devolution:
-                        await reaction.message.add_reaction(devolve_emoji)
-                    sleep(0.5)
-                    await reaction.message.add_reaction(evolve_emoji)
-
-                # nightmare
-                if message_meta_data.card_type == "nightmare":
-                    await reaction.message.clear_reactions()
-                    nightmare = s.query(Card).filter(Card.cardMstId==prev).first()
-                    helper = NightmareHelper(nightmare)
-                    embed = helper.create_embed()
-
-                    await reaction.message.edit(embed=embed)
-
-                    devolution = s.query(CardEvolution).filter(CardEvolution.evolvedCardMstId==prev).first()
-
-                    message_meta_data.last_updated = datetime.now()
-                    message_meta_data.next = message_meta_data.curr
-                    message_meta_data.curr = message_meta_data.prev
-                    message_meta_data.prev = devolution.cardMstId if devolution else None
-
-                    if devolution:
-                        await reaction.message.add_reaction(devolve_emoji)
-                    sleep(0.5)
-                    await reaction.message.add_reaction(evolve_emoji)
-                
 
 if __name__ == "__main__":
     bot.run(token)
