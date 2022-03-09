@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from contextlib import contextmanager
 
-from models import Base, Card, GuildToggle, Skill, CardEvolution, Item, LimitBreakSkill, Character, CharacterAbility, DiscordMessage
+from models import Base, Card, GuildToggle, Skill, CardEvolution, Item, LimitBreakSkill, Character, CharacterAbility, DiscordMessage, GuildMessageChannel
 from constants import MASTER_URL, TABLE_LIST
 
 db_url = os.getenv("DATABASE_URL")
@@ -48,6 +48,7 @@ def recreate_database():
     CharacterAbility.__table__.create(engine)
     DiscordMessage.__table__.create(engine)
     GuildToggle.__table__.create(bind=engine, checkfirst=True)
+    GuildMessageChannel.__table__.create(bind=engine, checkfirst=True)
 
 
 def populate_database():
