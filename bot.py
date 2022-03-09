@@ -44,6 +44,7 @@ async def ping_role():
                 db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
                 guild_db_entry = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==guild.id).first()
 
+                guild_channel_id = None
                 if guild_db_entry:
                     guild_channel_id = guild.channel_id
 
@@ -78,6 +79,7 @@ async def ping_role():
                 db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
                 guild_db_entry = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==guild.id).first()
 
+                guild_channel_id = None
                 if guild_db_entry:
                     guild_channel_id = guild.channel_id
 
@@ -112,6 +114,7 @@ async def ping_role():
                 db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
                 guild_db_entry = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==guild.id).first()
 
+                guild_channel_id = None
                 if guild_db_entry:
                     guild_channel_id = guild.channel_id
 
