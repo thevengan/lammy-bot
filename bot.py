@@ -22,8 +22,7 @@ from helpers import integer_to_roman
 from views import NightmareView, SkillDropdown, SkillView, WeaponView
 
 # set the nextcord bot token
-token = "ODI0MDM2OTEyMjk2ODg2Mjgy.YFpiLQ.OeZzpdC01ovYGTZDamGjSSRwYoI"
-#token = os.getenv("DISCORD_BOT_TOKEN")
+token = os.getenv("DISCORD_BOT_TOKEN")
 
 description = "TODO: Change Me"
 
