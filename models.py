@@ -106,3 +106,8 @@ class GuildToggle(Base):
     conquest = Column(Boolean, default=True)
     guerrilla = Column(Boolean, default=True)
     purification = Column(Boolean, default=True)
+
+class GuildMessageChannel(Base):
+    __tablename__ = "guildMessageChannel"
+    guild_id = Column(BigInteger, primary_key=True)
+    channel_id = Column(BigInteger)
