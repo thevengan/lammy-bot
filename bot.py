@@ -50,7 +50,7 @@ async def ping_role():
 
                 if db_entry is None:
                     if guild_channel_id:
-                        channels = [guild_channel_id]
+                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
                     else:
                         channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                     try:
@@ -62,7 +62,7 @@ async def ping_role():
                         continue
                 elif db_entry.guerrilla:
                     if guild_channel_id:
-                        channels = [guild_channel_id]
+                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
                     else:
                         channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                     try:
@@ -85,7 +85,7 @@ async def ping_role():
 
                 if db_entry is None:
                     if guild_channel_id:
-                        channels = [guild_channel_id]
+                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
                     else:
                         channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                     try:
@@ -97,7 +97,7 @@ async def ping_role():
                         continue
                 elif db_entry.conquest:
                     if guild_channel_id:
-                        channels = [guild_channel_id]
+                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
                     else:
                         channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                         try:
@@ -120,7 +120,7 @@ async def ping_role():
 
                 if db_entry is None:
                     if guild_channel_id:
-                        channels = [guild_channel_id]
+                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
                     else:
                         channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                     try:
@@ -132,7 +132,7 @@ async def ping_role():
                         continue
                 elif db_entry.purification:
                     if guild_channel_id:
-                        channels = [guild_channel_id]
+                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
                     else:
                         channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                         try:
