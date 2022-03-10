@@ -46,7 +46,7 @@ async def ping_role():
 
                 guild_channel_id = None
                 if guild_db_entry:
-                    guild_channel_id = guild.channel_id
+                    guild_channel_id = guild_db_entry.channel_id
 
                 if db_entry is None:
                     if guild_channel_id:
@@ -81,7 +81,7 @@ async def ping_role():
 
                 guild_channel_id = None
                 if guild_db_entry:
-                    guild_channel_id = guild.channel_id
+                    guild_channel_id = guild_db_entry.channel_id
 
                 if db_entry is None:
                     if guild_channel_id:
@@ -116,7 +116,7 @@ async def ping_role():
 
                 guild_channel_id = None
                 if guild_db_entry:
-                    guild_channel_id = guild.channel_id
+                    guild_channel_id = guild_db_entry.channel_id
 
                 if db_entry is None:
                     if guild_channel_id:
