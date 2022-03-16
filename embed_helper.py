@@ -35,6 +35,8 @@ class WeaponHelper:
                 rarity = "SR"
             if weapon.rarity == 6:
                 rarity = "L"
+            if weapon.rarity == 7:
+                rarity = "LL"
 
             infinity_weapon = "NO"
             if weapon.isInfiniteEvolution:

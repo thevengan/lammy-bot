@@ -38,68 +38,68 @@ bot = commands.Bot(command_prefix='!', description=description, intents=intents)
 async def ping_role():
     current_time = time(datetime.now().hour, datetime.now().minute)
 
+    guilds = bot.guilds
+    guilds_chunked = []
+    while guilds:
+        try:
+            guilds_chunked.append(guilds[:30])
+            del guilds[:30]
+        except IndexError:
+            guilds_chunked.append(guilds)
+            del guilds[:]
+
     if current_time in GUERRILLA_TIMES:
-        for guild in bot.guilds:
-            with session_scope() as s:
-                db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
-                guild_db_entry = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==guild.id).first()
+        for chunk in guilds_chunked:
+            for guild in chunk:
+                with session_scope() as s:
+                    db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
+                    guild_db_entry = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==guild.id).first()
 
-                guild_channel_id = None
-                if guild_db_entry:
-                    guild_channel_id = guild_db_entry.channel_id
+                    guild_channel_id = None
+                    if guild_db_entry:
+                        guild_channel_id = guild_db_entry.channel_id
 
-                if db_entry is None:
-                    if guild_channel_id:
-                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
-                    else:
-                        channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
-                    try:
-                        role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
+                    if db_entry is None:
+                        if guild_channel_id:
+                            channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
+                        else:
+                            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                        try:
+                            role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
 
-                        for channel in channels:
-                            await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
-                    except IndexError:
-                        continue
-                elif db_entry.guerrilla:
-                    if guild_channel_id:
-                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
-                    else:
-                        channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
-                    try:
-                        role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
+                            for channel in channels:
+                                await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
+                        except IndexError:
+                            continue
+                    elif db_entry.guerrilla:
+                        if guild_channel_id:
+                            channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
+                        else:
+                            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                        try:
+                            role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
 
-                        for channel in channels:
-                            await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
-                    except IndexError:
-                        continue
+                            for channel in channels:
+                                await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
+                        except IndexError:
+                            continue
     
     if current_time in CONQUEST_TIMES:
-        for guild in bot.guilds:
-            with session_scope() as s:
-                db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
-                guild_db_entry = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==guild.id).first()
+        for chunk in guilds_chunked:
+            for guild in chunk:
+                with session_scope() as s:
+                    db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
+                    guild_db_entry = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==guild.id).first()
 
-                guild_channel_id = None
-                if guild_db_entry:
-                    guild_channel_id = guild_db_entry.channel_id
+                    guild_channel_id = None
+                    if guild_db_entry:
+                        guild_channel_id = guild_db_entry.channel_id
 
-                if db_entry is None:
-                    if guild_channel_id:
-                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
-                    else:
-                        channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
-                    try:
-                        role = [role for role in guild.roles if role.name == "sino_conquest"][0]
-
-                        for channel in channels:
-                            await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
-                    except IndexError:
-                        continue
-                elif db_entry.conquest:
-                    if guild_channel_id:
-                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
-                    else:
-                        channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                    if db_entry is None:
+                        if guild_channel_id:
+                            channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
+                        else:
+                            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                         try:
                             role = [role for role in guild.roles if role.name == "sino_conquest"][0]
 
@@ -107,41 +107,54 @@ async def ping_role():
                                 await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
                         except IndexError:
                             continue
+                    elif db_entry.conquest:
+                        if guild_channel_id:
+                            channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
+                        else:
+                            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                            try:
+                                role = [role for role in guild.roles if role.name == "sino_conquest"][0]
+
+                                for channel in channels:
+                                    await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
+                            except IndexError:
+                                continue
 
     if current_time in PURIFICATION_TIMES:
-        for guild in bot.guilds:
-            with session_scope() as s:
-                db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
-                guild_db_entry = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==guild.id).first()
+        for chunk in guilds_chunked:
+            for guild in chunk:
+                with session_scope() as s:
+                    db_entry = s.query(GuildToggle).filter(GuildToggle.guild_id==guild.id).first()
+                    guild_db_entry = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==guild.id).first()
 
-                guild_channel_id = None
-                if guild_db_entry:
-                    guild_channel_id = guild_db_entry.channel_id
+                    guild_channel_id = None
+                    if guild_db_entry:
+                        guild_channel_id = guild_db_entry.channel_id
 
-                if db_entry is None:
-                    if guild_channel_id:
-                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
-                    else:
-                        channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
-                    try:
-                        role = [role for role in guild.roles if role.name == "sino_purification"][0]
-
-                        for channel in channels:
-                            await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
-                    except IndexError:
-                        continue
-                elif db_entry.purification:
-                    if guild_channel_id:
-                        channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
-                    else:
-                        channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                    if db_entry is None:
+                        if guild_channel_id:
+                            channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
+                        else:
+                            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
                         try:
                             role = [role for role in guild.roles if role.name == "sino_purification"][0]
 
                             for channel in channels:
                                 await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
                         except IndexError:
-                            continue    
+                            continue
+                    elif db_entry.purification:
+                        if guild_channel_id:
+                            channels = [channel for channel in guild.channels if channel.id == guild_channel_id]
+                        else:
+                            channels = [channel for channel in guild.channels if channel.name in BOT_CHANNELS]
+                            try:
+                                role = [role for role in guild.roles if role.name == "sino_purification"][0]
+
+                                for channel in channels:
+                                    await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
+                            except IndexError:
+                                continue    
 
 
 @tasks.loop(hours=1)
