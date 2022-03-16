@@ -8,6 +8,7 @@ import os
 import requests
 import json
 from datetime import time, datetime
+from time import sleep
 
 # non-default imports
 from sqlalchemy import or_
@@ -83,6 +84,7 @@ async def ping_role():
                                 await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
                         except IndexError:
                             continue
+            sleep(2)
     
     if current_time in CONQUEST_TIMES:
         for chunk in guilds_chunked:
@@ -119,6 +121,7 @@ async def ping_role():
                                     await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
                             except IndexError:
                                 continue
+            sleep(2)
 
     if current_time in PURIFICATION_TIMES:
         for chunk in guilds_chunked:
@@ -154,7 +157,8 @@ async def ping_role():
                                 for channel in channels:
                                     await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
                             except IndexError:
-                                continue    
+                                continue
+            sleep(2)  
 
 
 @tasks.loop(hours=1)
