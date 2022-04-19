@@ -1,7 +1,8 @@
 import os
 import pandas as pd
+from unidecode import unidecode
 
-from sqlalchemy import create_engine, or_
+from sqlalchemy import create_engine, or_, update
 from sqlalchemy.orm import sessionmaker
 
 from contextlib import contextmanager
@@ -70,6 +71,8 @@ def populate_database():
         for column in data_columns:
             if column not in table["fields"]:
                 data.drop(column, axis=1, inplace=True)
+            if table["name"] == "card":
+                data["searchableName"] = ""
 
         with engine.begin() as connection:
             data.to_sql(table["name"], con=connection, if_exists='replace', method='multi')
@@ -85,3 +88,7 @@ def populate_database():
 
             if weapon is None:
                 s.query(Skill).filter(Skill.skillMstId==id).delete()
+
+    with session_scope() as s:
+        for row in s.query(Card):
+            row.searchableName = unidecode(row.name)
