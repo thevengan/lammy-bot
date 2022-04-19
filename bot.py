@@ -494,12 +494,15 @@ async def soaweapon(ctx):
             return
 
         with session_scope() as s:
-            weapon = s.query(Card).filter(Card.name.ilike(f"%{weapon_name.replace(' ', '%')}%"), Card.evolutionLevel==0, Card.cardType==1, Card.isRelease).first()
+            weapon = s.query(Card).filter(Card.searchableName==weapon_name.title(), Card.evolutionLevel==0, Card.cardType==1, Card.isRelease).first()
 
             if weapon is None:
-                await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a weapon matching {weapon_name}. Please try again.")
-                return
-            
+                weapon = s.query(Card).filter(Card.searchableName.ilike(f"%{weapon_name.replace(' ', '%')}%"), Card.evolutionLevel==0, Card.cardType==1, Card.isRelease).first()
+
+                if weapon is None:
+                    await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a weapon matching {weapon_name}. Please try again.")
+                    return
+                
             helper = WeaponHelper(weapon)
             embed = helper.create_embed()
             view = WeaponView()
@@ -571,12 +574,15 @@ async def soanightmare(ctx):
             return
 
         with session_scope() as s:
-            nightmare = s.query(Card).filter(Card.name.ilike(f"%{nightmare_name.replace(' ', '%')}%"), Card.cardType==3, Card.isRelease).first()
+            nightmare = s.query(Card).filter(Card.name==nightmare_name.title(), Card.cardType==3, Card.isRelease).first()
 
             if nightmare is None:
-                await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a nightmare matching {nightmare_name}. Please try again.")
-                return
-            
+                nightmare = s.query(Card).filter(Card.name.ilike(f"%{nightmare_name.replace(' ', '%')}%"), Card.cardType==3, Card.isRelease).first()
+
+                if nightmare is None:
+                    await ctx.channel.send(f"{ctx.author.mention}: I couldn't find a nightmare matching {nightmare_name}. Please try again.")
+                    return
+                
             helper = NightmareHelper(nightmare)
             embed = helper.create_embed()
             view = NightmareView()

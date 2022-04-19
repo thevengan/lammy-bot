@@ -13,6 +13,7 @@ class Card(Base):
     autoSkillMstId = Column(Integer)
     limitBreakSkillMstId = Column(Integer)
     name = Column(String)
+    searchableName = Column(String)
     resourceName = Column(String)
     cardType = Column(Integer)
     weaponType = Column(Integer)
