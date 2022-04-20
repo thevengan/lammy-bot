@@ -1,0 +1,10 @@
+This bot keeps track of the following Discord Server information:
+ - Server ID (for keeping track of your server-specific settings)
+ - Channel IDs (for keeping track of which channel lammy-bot is listening for commands in)
+ - Message IDs (for enabling lammy-bot to edit messages)
+
+This bot **DOES NOT** keep track of any personal information, or any personal Discord User IDs.
+
+All server information is stored on a secured database server that only Vengan#7777 has access to.
+
+If you have any concerns, or if you would like your data removed, please contact Vengan#7777.

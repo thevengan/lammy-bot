@@ -17,10 +17,10 @@ from sqlalchemy import or_
 from schedules import GUERRILLA_TIMES, CONQUEST_TIMES, PURIFICATION_TIMES
 from models import Card, CardEvolution, Character, DiscordMessage, Skill, GuildToggle, GuildMessageChannel
 from crud import recreate_database, populate_database, session_scope
-from constants import BOT_CHANNELS, VERSION_URL, HELP_MESSAGE, HELP_MESSAGE_CONT
+from constants import BOT_CHANNELS, VERSION_URL, HELP_MESSAGE, HELP_MESSAGE_CONT, PRIVACY_POLICY_MESSAGE
 from embed_helper import JobHelper, NightmareHelper, SkillHelper, WeaponHelper
 from helpers import integer_to_roman
-from views import NightmareView, SkillDropdown, SkillView, WeaponView
+from views import NightmareView, SkillDropdown, SkillView, WeaponView, StoryView
 
 # set the nextcord bot token
 token = os.getenv("DISCORD_BOT_TOKEN")
@@ -31,7 +31,7 @@ intents = nextcord.Intents.default()
 intents.members = True
 
 # instantiate bot
-bot = commands.Bot(command_prefix='!', description=description, intents=intents)
+bot = commands.Bot(command_prefix='!soa', description=description, intents=intents)
 
 
 # ping_role task that acts every minute and pings applicable roles
@@ -232,54 +232,63 @@ async def on_ready():
     print("Tasks started")
     print("------------")
 
-    await bot.change_presence(activity=nextcord.Game(name="!soahelp"))
+    await bot.change_presence(activity=nextcord.Game(name="!soahowto"))
+
+
+# policy command - sends a DM to the caller detailing the privacy policy
+@bot.command()
+async def policy(ctx):
+    await ctx.author.send(content=PRIVACY_POLICY_MESSAGE)
 
 
 # help command - sends a help DM to the caller
 @bot.command()
-async def soahelp(ctx):
+async def howto(ctx):
     await ctx.author.send(content=HELP_MESSAGE)
     await ctx.author.send(content=HELP_MESSAGE_CONT)
 
 
 # initialize command - sets up necessary channels and roles
 @bot.command()
-async def soainitialize(ctx):
-    channel_names = set([channel.name for channel in ctx.guild.channels])
+async def initialize(ctx):
+    if ctx.message.author.guild_permissions.administrator:
+        channel_names = set([channel.name for channel in ctx.guild.channels])
 
-    channel_intersection = channel_names & set(BOT_CHANNELS)
+        channel_intersection = channel_names & set(BOT_CHANNELS)
 
-    channels_added = []
-    if not channel_intersection:
-        await ctx.guild.create_text_channel(name="bot-spam")
-        channels_added.append("bot-spam")
+        channels_added = []
+        if not channel_intersection:
+            await ctx.guild.create_text_channel(name="bot-spam")
+            channels_added.append("bot-spam")
 
-    role_names = [role.name for role in ctx.guild.roles]
+        role_names = [role.name for role in ctx.guild.roles]
 
-    roles_added = []
-    if "sino_guerrilla" not in role_names:
-        await ctx.guild.create_role(name="sino_guerrilla")
-        roles_added.append("sino_guerrilla")
-    if "sino_conquest" not in role_names:
-        await ctx.guild.create_role(name="sino_conquest")
-        roles_added.append("sino_conquest")
-    if "sino_purification" not in role_names:
-        await ctx.guild.create_role(name="sino_purification")
-        roles_added.append("sino_purification")
+        roles_added = []
+        if "sino_guerrilla" not in role_names:
+            await ctx.guild.create_role(name="sino_guerrilla")
+            roles_added.append("sino_guerrilla")
+        if "sino_conquest" not in role_names:
+            await ctx.guild.create_role(name="sino_conquest")
+            roles_added.append("sino_conquest")
+        if "sino_purification" not in role_names:
+            await ctx.guild.create_role(name="sino_purification")
+            roles_added.append("sino_purification")
 
-    if channels_added:
-        await ctx.channel.send(f"{ctx.author.mention}: Created the following channel - {channels_added}.")
+        if channels_added:
+            await ctx.channel.send(f"{ctx.author.mention}: Created the following channel - {channels_added}.")
+        else:
+            await ctx.channel.send(f"{ctx.author.mention}: usable channel(s) already exists - {channel_intersection}.")
+        if roles_added:
+            await ctx.channel.send(f"{ctx.author.mention}: Created the following roles - {roles_added}.")
+        else:
+            await ctx.channel.send(f"{ctx.author.mention}: Roles already exist.")
     else:
-        await ctx.channel.send(f"{ctx.author.mention}: usable channel(s) already exists - {channel_intersection}.")
-    if roles_added:
-        await ctx.channel.send(f"{ctx.author.mention}: Created the following roles - {roles_added}.")
-    else:
-        await ctx.channel.send(f"{ctx.author.mention}: Roles already exist.")
+        await ctx.channel.send(f"{ctx.author.mention}: I'm sorry, this is a privileged command. Please ask an Administrator to use this command.")
 
 
 # giverole command - gives the specified role(s) to the caller
 @bot.command()
-async def soagiverole(ctx):
+async def giverole(ctx):
     with session_scope() as s:
         guild = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==ctx.guild.id).first()
 
@@ -330,7 +339,7 @@ async def soagiverole(ctx):
 
 # removerole command - removes the specified role(s) from the caller
 @bot.command()
-async def soaremoverole(ctx):
+async def removerole(ctx):
     with session_scope() as s:
         guild = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==ctx.guild.id).first()
 
@@ -364,123 +373,129 @@ async def soaremoverole(ctx):
 
 # guildtoggle command - toggles whether the @mentions for conq, guerr, and puri are enabled
 @bot.command()
-async def soatoggle(ctx):
-    with session_scope() as s:
-        guild = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==ctx.guild.id).first()
-
-        if guild:
-            guild_channel_id = guild.channel_id
-
-    if ctx.channel.name in BOT_CHANNELS or ctx.channel.id == guild_channel_id:
-        actions_enabled = []
-        actions_disabled = []
-
-        with session_scope() as s:
-            guild = s.query(GuildToggle).filter(GuildToggle.guild_id==ctx.guild.id).first()
-
-            if guild:
-                if "guerrilla" in ctx.message.content:
-                    if guild.guerrilla:
-                        guild.guerrilla = not guild.guerrilla
-                        actions_disabled.append("Guerrilla")
-                    else:
-                        guild.guerrilla = not guild.guerrilla
-                        actions_enabled.append("Guerrilla")
-                if "conquest" in ctx.message.content:
-                    if guild.conquest:
-                        guild.conquest = not guild.conquest
-                        actions_disabled.append("Conquest")
-                    else:
-                        guild.conquest = not guild.conquest
-                        actions_enabled.append("Conquest")
-                if "purification" in ctx.message.content:
-                    if guild.purification:
-                        guild.purification = not guild.purification
-                        actions_disabled.append("Purification")
-                    else:
-                        guild.purification = not guild.purification
-                        actions_enabled.append("Purification")
-            else:
-                new_guild = GuildToggle(
-                    guild_id=ctx.guild.id
-                )
-                s.add(new_guild)
-                guild = s.query(GuildToggle).filter(GuildToggle.guild_id==ctx.guild.id).first()
-
-                if "guerrilla" in ctx.message.content:
-                    if guild.guerrilla:
-                        guild.guerrilla = not guild.guerrilla
-                        actions_disabled.append("Guerrilla")
-                    else:
-                        guild.guerrilla = not guild.guerrilla
-                        actions_enabled.append("Guerrilla")
-                if "conquest" in ctx.message.content:
-                    if guild.conquest:
-                        guild.conquest = not guild.conquest
-                        actions_disabled.append("conquest")
-                    else:
-                        guild.conquest = not guild.conquest
-                        actions_enabled.append("conquest")
-                if "purification" in ctx.message.content:
-                    if guild.purification:
-                        guild.purification = not guild.purification
-                        actions_disabled.append("purification")
-                    else:
-                        guild.purification = not guild.purification
-                        actions_enabled.append("purification")
-
-        if actions_enabled:
-            await ctx.channel.send(f"{ctx.author.mention}: The following @mention(s) have been TURNED ON - {actions_enabled}.")
-        if actions_disabled:
-            await ctx.channel.send(f"{ctx.author.mention}: The following @mention(s) have been TURNED OFF - {actions_disabled}.")
-
-
-# channel command - sets a custom channel for lammy-bot to listen and respond to comamnds
-@bot.command()
-async def soachannel(ctx):
-    with session_scope() as s:
-        guild = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==ctx.guild.id).first()
-
-        if guild:
-            guild_channel_id = guild.channel_id
-
-    if ctx.channel.name in BOT_CHANNELS or ctx.channel.id == guild_channel_id:
-        channel_name = ctx.message.content[12:].strip()
-
-        if "" == channel_name:
-            return
-
+async def toggle(ctx):
+    if ctx.message.author.guild_permissions.administrator:
         with session_scope() as s:
             guild = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==ctx.guild.id).first()
 
             if guild:
-                try:
-                    channel_id = [channel.id for channel in ctx.guild.channels if channel.name == channel_name][0]
-                    if guild.channel_id == channel_id:
-                        await ctx.channel.send(f"{ctx.author.mention}: that custom channel is already set.")
-                    else:
-                        guild.channel_id = channel_id
-                        await ctx.channel.send(f"{ctx.author.mention}: '{ctx.guild.get_channel(channel_id).name}' has been set as the custom channel.")
-                except IndexError:
-                    await ctx.channel.send(f"{ctx.author.mention}: I couldn't find that channel in this server.")
+                guild_channel_id = guild.channel_id
 
-            else:
-                try:
-                    channel_id = [channel.id for channel in ctx.guild.channels if channel.name == channel_name][0]
-                    new_guild = GuildMessageChannel(
-                        guild_id = ctx.guild.id,
-                        channel_id = channel_id
+        if ctx.channel.name in BOT_CHANNELS or ctx.channel.id == guild_channel_id:
+            actions_enabled = []
+            actions_disabled = []
+
+            with session_scope() as s:
+                guild = s.query(GuildToggle).filter(GuildToggle.guild_id==ctx.guild.id).first()
+
+                if guild:
+                    if "guerrilla" in ctx.message.content:
+                        if guild.guerrilla:
+                            guild.guerrilla = not guild.guerrilla
+                            actions_disabled.append("Guerrilla")
+                        else:
+                            guild.guerrilla = not guild.guerrilla
+                            actions_enabled.append("Guerrilla")
+                    if "conquest" in ctx.message.content:
+                        if guild.conquest:
+                            guild.conquest = not guild.conquest
+                            actions_disabled.append("Conquest")
+                        else:
+                            guild.conquest = not guild.conquest
+                            actions_enabled.append("Conquest")
+                    if "purification" in ctx.message.content:
+                        if guild.purification:
+                            guild.purification = not guild.purification
+                            actions_disabled.append("Purification")
+                        else:
+                            guild.purification = not guild.purification
+                            actions_enabled.append("Purification")
+                else:
+                    new_guild = GuildToggle(
+                        guild_id=ctx.guild.id
                     )
                     s.add(new_guild)
+                    guild = s.query(GuildToggle).filter(GuildToggle.guild_id==ctx.guild.id).first()
 
-                    await ctx.channel.send(f"{ctx.author.mention}: '{ctx.guild.get_channel(channel_id).name}' has been set as the custom channel.")
-                except IndexError:
-                    await ctx.channel.send(f"{ctx.author.mention}: I couldn't find that channel in this server.")
+                    if "guerrilla" in ctx.message.content:
+                        if guild.guerrilla:
+                            guild.guerrilla = not guild.guerrilla
+                            actions_disabled.append("Guerrilla")
+                        else:
+                            guild.guerrilla = not guild.guerrilla
+                            actions_enabled.append("Guerrilla")
+                    if "conquest" in ctx.message.content:
+                        if guild.conquest:
+                            guild.conquest = not guild.conquest
+                            actions_disabled.append("conquest")
+                        else:
+                            guild.conquest = not guild.conquest
+                            actions_enabled.append("conquest")
+                    if "purification" in ctx.message.content:
+                        if guild.purification:
+                            guild.purification = not guild.purification
+                            actions_disabled.append("purification")
+                        else:
+                            guild.purification = not guild.purification
+                            actions_enabled.append("purification")
+
+            if actions_enabled:
+                await ctx.channel.send(f"{ctx.author.mention}: The following @mention(s) have been TURNED ON - {actions_enabled}.")
+            if actions_disabled:
+                await ctx.channel.send(f"{ctx.author.mention}: The following @mention(s) have been TURNED OFF - {actions_disabled}.")
+    else:
+        await ctx.channel.send(f"{ctx.author.mention}: I'm sorry, this is a privileged command. Please ask an Administrator to use this command.")
+
+
+# channel command - sets a custom channel for lammy-bot to listen and respond to comamnds
+@bot.command()
+async def channel(ctx):
+    if ctx.message.author.guild_permissions.administrator:
+        with session_scope() as s:
+            guild = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==ctx.guild.id).first()
+
+            if guild:
+                guild_channel_id = guild.channel_id
+
+        if ctx.channel.name in BOT_CHANNELS or ctx.channel.id == guild_channel_id:
+            channel_name = ctx.message.content[12:].strip()
+
+            if "" == channel_name:
+                return
+
+            with session_scope() as s:
+                guild = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==ctx.guild.id).first()
+
+                if guild:
+                    try:
+                        channel_id = [channel.id for channel in ctx.guild.channels if channel.name == channel_name][0]
+                        if guild.channel_id == channel_id:
+                            await ctx.channel.send(f"{ctx.author.mention}: that custom channel is already set.")
+                        else:
+                            guild.channel_id = channel_id
+                            await ctx.channel.send(f"{ctx.author.mention}: '{ctx.guild.get_channel(channel_id).name}' has been set as the custom channel.")
+                    except IndexError:
+                        await ctx.channel.send(f"{ctx.author.mention}: I couldn't find that channel in this server.")
+
+                else:
+                    try:
+                        channel_id = [channel.id for channel in ctx.guild.channels if channel.name == channel_name][0]
+                        new_guild = GuildMessageChannel(
+                            guild_id = ctx.guild.id,
+                            channel_id = channel_id
+                        )
+                        s.add(new_guild)
+
+                        await ctx.channel.send(f"{ctx.author.mention}: '{ctx.guild.get_channel(channel_id).name}' has been set as the custom channel.")
+                    except IndexError:
+                        await ctx.channel.send(f"{ctx.author.mention}: I couldn't find that channel in this server.")
+    else:
+        await ctx.channel.send(f"{ctx.author.mention}: I'm sorry, this is a privileged command. Please ask an Administrator to use this command.")
 
 
 # weapon command - queries the db and displays information about the requested weapon
 @bot.command()
-async def soaweapon(ctx):
+async def weapon(ctx):
     with session_scope() as s:
         guild = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==ctx.guild.id).first()
 
@@ -522,7 +537,7 @@ async def soaweapon(ctx):
 
 # skill command - queries the db and displays information about the requested skill
 @bot.command()
-async def soaskill(ctx):
+async def skill(ctx):
     with session_scope() as s:
         guild = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==ctx.guild.id).first()
 
@@ -560,7 +575,7 @@ async def soaskill(ctx):
 
 # nightmare command - queries the db and displays information about the requested nightmare
 @bot.command()
-async def soanightmare(ctx):
+async def nightmare(ctx):
     with session_scope() as s:
         guild = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==ctx.guild.id).first()
 
@@ -602,7 +617,7 @@ async def soanightmare(ctx):
 
 # job command - queries the db and displays information about the requested job
 @bot.command()
-async def soajob(ctx):
+async def job(ctx):
     with session_scope() as s:
         guild = s.query(GuildMessageChannel).filter(GuildMessageChannel.guild_id==ctx.guild.id).first()
 
@@ -633,8 +648,9 @@ async def soajob(ctx):
 
             helper = JobHelper(character)
             embed = helper.create_embed()
+            view = StoryView()
 
-            await ctx.channel.send(embed=embed)
+            await ctx.channel.send(embed=embed, view=view)
 
 
 if __name__ == "__main__":
