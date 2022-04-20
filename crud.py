@@ -60,6 +60,7 @@ def populate_database():
         'characterUniqueName', 
         'characterVoice',
         'typeLabel',
+        'story',
         ]
 
     dict_dtypes = {x : 'str' for x in list_of_string_columns}

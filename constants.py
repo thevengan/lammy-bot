@@ -124,7 +124,17 @@ TABLE_LIST = [
             "effectValue",
             "cardDetailType",
         ]
-    }
+    },
+    {
+        "name" : "characterStory",
+        "download_location" : "character_story_mst_list",
+        "fields" : [
+            "characterStoryMstId",
+            "characterMstId",
+            "releaseLevel",
+            "story",
+        ]
+    },
 ]
 
 WEAPON_INTEGER_VALUES = {
@@ -139,8 +149,8 @@ WEAPON_INTEGER_VALUES = {
 }
 
 HELP_MESSAGE = """**Available Commands**
-**Prefix** - use `!soa[command]` to access bot commands - eg. `!soahelp`
-- `help` : sends a DM to the message author detailing the commands available.
+**Prefix** - use `!soa[command]` to access bot commands - eg. `!soahowto`
+- `howto` : sends a DM to the message author detailing the commands available.
 
 - `initialize` : creates the necessary channels and roles for `lammy-bot` to function.
       - what this entails - creates `sino_conquest`, `sino_guerrilla`, and `sino_purification` as server roles. Creates the `bot-spam` channel for using other commands.
@@ -153,11 +163,14 @@ HELP_MESSAGE = """**Available Commands**
 
 - `toggle [@mention]` : toggles the requested @mention for the current server. Multiple @mentions can be given by separating them with a `space`. Possible @mentions are `conquest, guerrilla, purification`. You can turn off an @mention at the same time you turn another @mention off.
     - example - `!soatoggle guerrilla conquest` would toggle the @mentions for the `sino_guerrilla` and `sino_conquest` roles for the current server.
+
 - `channel [channel_name]` : sets a custom channel for `lammy-bot` to listen for commands in. You can then delete any channels created by/for `lammy-bot`.
-    - example - `!soachannel sino-bots` would look for the channel `sino-bots` in your server and, if it exists, set as a channel that you can use `lammy-bot` with."""
+    - example - `!soachannel sino-bots` would look for the channel `sino-bots` in your server and, if it exists, set as a channel that you can use `lammy-bot` with.
+    """
 
 HELP_MESSAGE_CONT = """- `weapon [weapon]`: searches the weapon database for the text entered after the command and returns an embed with information on the most relevant weapon.
       - example - `!soaweapon entrail` would pull up an embed with information for `Entrails of Justice`.
+
 - `skill [skill]` : searches the skill database for the text entered after the command and returns an embed with information on the most relevant skill.
       - example - `!soaskill hero's harmony` would pull up an embed with information for `Hero's Harmony (I)`.
 
@@ -168,3 +181,16 @@ HELP_MESSAGE_CONT = """- `weapon [weapon]`: searches the weapon database for the
       - example `!soajob three little pigs/min` would pull up an embed with information for `Three Little Pigs/Minstrel`.
       - this command can take shortened character and job names as long as they are part of the whole name.
         - `!soajob red/lust` would work, but neither `!soajob rrh/lust` nor `!soajob red/l scorp` would work."""
+
+PRIVACY_POLICY_MESSAGE = """
+This bot keeps track of the following Discord Server information:
+ - Server ID (for keeping track of your server-specific settings)
+ - Channel IDs (for keeping track of which channel lammy-bot is listening for commands in)
+ - Message IDs (for enabling lammy-bot to edit messages)
+
+This bot **DOES NOT** keep track of any personal information, or any personal Discord User IDs.
+
+All server information is stored on a secured database server that only Vengan#7777 has access to.
+
+If you have any concerns, or if you would like your data removed, please contact Vengan#7777.
+"""
