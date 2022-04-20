@@ -93,6 +93,13 @@ class CharacterAbility(Base):
     effectValue = Column(Integer)
     cardDetailType = Column(Integer)
 
+class CharacterStory(Base):
+    __tablename__ = 'characterStory'
+    characterStoryMstId = Column(Integer, primary_key=True)
+    characterMstId = Column(Integer)
+    releaseLevel = Column(Integer)
+    story = Column(String)
+
 class DiscordMessage(Base):
     __tablename__ = 'discordMessages'
     message_id = Column(BigInteger, primary_key=True)

@@ -6,7 +6,7 @@ from tabulate import tabulate
 from constants import IMAGE_URL, CLASS_IMAGE_URL, WEAPON_INTEGER_VALUES, \
     BUFF_SKILL_PRIMARY_ICON_VALUES, DEBUFF_SKILL_PRIMARY_ICON_VALUES, WEAPON_ICON_URL
 from crud import session_scope
-from models import Card, CharacterAbility, Skill
+from models import Card, Character, CharacterAbility, Skill, CharacterStory
 
 class WeaponHelper:
     def __init__(self, weapon):
@@ -530,5 +530,59 @@ class SkillHelper:
         embed.set_thumbnail(url=WEAPON_ICON_URL.format(weapon_icon))
         embed.add_field(name="SP", value=str(skill.sp), inline=True)
         embed.add_field(name="Targets", value=f"{skill.typeLabel if skill.typeLabel != 'own' else 'Self'}", inline=True)
+
+        return embed
+
+
+class StoryHelper:
+    def __init__(self, job):
+        self.job = job
+
+    def create_embed(self):
+        job = self.job
+
+        with session_scope() as s:
+            story = s.query(CharacterStory).filter(CharacterStory.characterMstId==job.characterMstId).all()
+
+            formatted_story = ""
+            for verse in story:
+                formatted_story += f"{verse.story}\n\n".replace("\\n", "\n")
+
+        if job.characterUniqueName == "Alice":
+            color = 0x0076D4
+        elif job.characterUniqueName == "Snow White":
+            color = 0xFFFFFF
+        elif job.characterUniqueName == "Red Riding Hood":
+            color = 0x950400
+        elif job.characterUniqueName == "Cinderella":
+            color = 0xCCAAB2
+        elif job.characterUniqueName == "Pinocchio":
+            color = 0xD4F129
+        elif job.characterUniqueName == "Sleeping Beauty":
+            color = 0xEEDE90
+        elif job.characterUniqueName == "Gretel":
+            color = 0xF82DBF
+        elif job.characterUniqueName == "Princess Kaguya":
+            color = 0xC79DF6
+        elif job.characterUniqueName == "Dorothy":
+            color = 0x6A3755
+        elif job.characterUniqueName == "Little Mermaid":
+            color = 0x78E2EC
+        elif job.characterUniqueName == "The Three Little Pigs":
+            color = 0xA2928E
+        elif job.characterUniqueName == "Aladdin":
+            color = 0xC4A688
+        elif job.characterUniqueName == "Rapunzel":
+            color = 0xD97F2F
+        elif job.characterUniqueName == "Hamelin":
+            color = 0x4940C7
+        elif job.characterUniqueName == "Nutcracker":
+            color = 0xFDF4BF
+        else:
+            color = 0x525252
+
+        embed = Embed(title=job.name, type="rich", colour=color)
+        embed.set_thumbnail(url=CLASS_IMAGE_URL.format(job.resourceName))
+        embed.add_field(name="Story", value=formatted_story)
 
         return embed

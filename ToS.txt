@@ -1,0 +1,26 @@
+Terms of Service
+
+Usage Agreement
+By inviting lammy-bot (bot, the bot) into a server and using its features (commands), you are agreeing to the below mentioned Terms and Privacy Policy (Policy) of the bot.
+
+You acknowledge that you have the privilege to use the bot freely on any Discord Server (Server) you invite it to, on which you have "Manage Server" permissions, and that this privilege can be revoked at any time if you found to be breaking/have broken the Terms of Service of this bot or the Terms of Service, Privacy Policy, and/or Community Guidelines of Discord Inc.
+
+Through inviting the bot into a Server, you are giving it permission to collect data as described in its Policy. The intended usage of this data is for core bot functionality only.
+
+Intended Age
+The bot may not be used by individuals under the minimum age described in Discord’s Terms of Service.
+
+Affiliation
+The bot is not affiliated with, supported by, or made by Discord Inc.
+
+Any direct connection to Discord or any of its Trademark objects is purely coincidental. We do not claim to have the copyright ownership of any of Discord’s assets, trademarks, or other intellectual property.
+
+Liability
+The owner (Vengan#7777) of the bot may not be made liable for individuals breaking these Terms at any given time.
+
+The owner reserves the right to update these Terms at their discretion, giving users a 1-week (7-day) period to opt out of these Terms.
+
+You may opt out at any time by removing the bot from any Server on which you have the rights to do so.
+
+Contact
+Users may contact the owner through Discord Direct Message via the owner’s username, Vengan#7777.

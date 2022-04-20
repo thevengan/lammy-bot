@@ -16,11 +16,11 @@ Developed and maintained by [@michael-arroyo](https://github.com/michael-arroyo)
 - Conquest lookup
 
 ## Adding the Bot to Your Server
-- Click on [this link here](https://discord.com/api/oauth2/authorize?client_id=824036912296886282&permissions=8&scope=bot)
+- Click on [this link here](https://discord.com/api/oauth2/authorize?client_id=824036912296886282&permissions=2415979536&scope=bot)
 
 ## Available Commands
-### Prefix - use `!soa[command]` to access bot commands - eg. `!soahelp`
-- `help` : sends a DM to the message author detailing the commands available.
+### Prefix - use `!soa[command]` to access bot commands - eg. `!soahowto`
+- `howto` : sends a DM to the message author detailing the commands available.
 - `initialize` : creates the necessary channels and roles for `lammy-bot` to function.
     - what this entails - creates `sino_conquest`, `sino_guerrilla`, and `sino_purification` as server roles. Creates the `bot-spam` channel for using other commands.
 - `giverole [role]` : gives the message author the requested role(s). Multiple roles can be given by separating them with a `space`. Possible roles are `conquest, guerrilla, purification`.
