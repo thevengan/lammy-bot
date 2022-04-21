@@ -69,7 +69,10 @@ async def ping_role():
                             role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
 
                             for channel in channels:
-                                await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
+                                try:
+                                    await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
+                                except:
+                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
                         except IndexError:
                             continue
                     elif db_entry.guerrilla:
@@ -81,7 +84,10 @@ async def ping_role():
                             role = [role for role in guild.roles if role.name == "sino_guerrilla"][0]
 
                             for channel in channels:
-                                await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
+                                try:
+                                    await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
+                                except:
+                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
                         except IndexError:
                             continue
             sleep(2)
@@ -106,7 +112,10 @@ async def ping_role():
                             role = [role for role in guild.roles if role.name == "sino_conquest"][0]
 
                             for channel in channels:
-                                await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
+                                try:
+                                    await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
+                                except:
+                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
                         except IndexError:
                             continue
                     elif db_entry.conquest:
@@ -118,7 +127,10 @@ async def ping_role():
                             role = [role for role in guild.roles if role.name == "sino_conquest"][0]
 
                             for channel in channels:
-                                await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
+                                try:
+                                    await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
+                                except:
+                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
                         except IndexError:
                             continue
             sleep(2)
@@ -143,7 +155,10 @@ async def ping_role():
                             role = [role for role in guild.roles if role.name == "sino_purification"][0]
 
                             for channel in channels:
-                                await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
+                                try:
+                                    await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
+                                except:
+                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
                         except IndexError:
                             continue
                     elif db_entry.purification:
@@ -155,7 +170,10 @@ async def ping_role():
                             role = [role for role in guild.roles if role.name == "sino_purification"][0]
 
                             for channel in channels:
-                                await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
+                                try:
+                                    await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
+                                except:
+                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
                         except IndexError:
                             continue
             sleep(2)  
