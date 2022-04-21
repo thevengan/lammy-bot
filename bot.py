@@ -72,7 +72,7 @@ async def ping_role():
                                 try:
                                     await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
                                 except:
-                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
+                                    continue
                         except IndexError:
                             continue
                     elif db_entry.guerrilla:
@@ -87,7 +87,7 @@ async def ping_role():
                                 try:
                                     await channel.send(f"{role.mention}: Guerrilla is open for the next 30 minutes!")
                                 except:
-                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
+                                    continue
                         except IndexError:
                             continue
             sleep(2)
@@ -115,7 +115,7 @@ async def ping_role():
                                 try:
                                     await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
                                 except:
-                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
+                                    continue
                         except IndexError:
                             continue
                     elif db_entry.conquest:
@@ -130,7 +130,7 @@ async def ping_role():
                                 try:
                                     await channel.send(f"{role.mention}: Conquest is open for the next 30 minutes!")
                                 except:
-                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
+                                    continue
                         except IndexError:
                             continue
             sleep(2)
