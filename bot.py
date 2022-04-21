@@ -158,7 +158,7 @@ async def ping_role():
                                 try:
                                     await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
                                 except:
-                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
+                                    continue
                         except IndexError:
                             continue
                     elif db_entry.purification:
@@ -173,7 +173,7 @@ async def ping_role():
                                 try:
                                     await channel.send(f"{role.mention}: Time to purify! Get that room clean!")
                                 except:
-                                    await channel.send("lammy-bot does not have the right permissions, try removing the bot and re-adding it.")
+                                    continue
                         except IndexError:
                             continue
             sleep(2)  
